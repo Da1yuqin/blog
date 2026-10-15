@@ -1,0 +1,42 @@
+<style>
+  .masthead__inner-wrap { position: relative; padding-right: 70px; }
+  .day-message-bell { position: absolute; right: 20px; top: 50%; transform: translateY(-50%); display: grid; place-items: center; width: 32px; height: 32px; margin: 0; padding: 5px; border: 0; background: transparent; color: #526349; cursor: pointer; }
+  .day-message-bell:hover { color: #263322; }
+  .day-message-bell svg { width: 21px; height: 21px; }
+  .day-message-badge { position: absolute; top: -1px; right: -6px; min-width: 15px; padding: 0 3px; border-radius: 8px; background: #a05d42; color: #fff; font: 10px/16px sans-serif; text-align: center; }
+  .day-message-badge[hidden], .day-messages[hidden] { display: none !important; }
+  .day-messages { position: fixed; inset: 0; z-index: 1400; background: #30362e22; }
+  .day-messages__panel { position: absolute; right: 0; top: 0; bottom: 0; width: 410px; max-width: 100%; display: flex; flex-direction: column; padding: 24px; box-sizing: border-box; background: #fcfbf8; border-left: 1px solid #dedfd6; color: #30362e; font: 13px/1.65 sans-serif; }
+  .day-messages__header { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #dedfd6; padding-bottom: 12px; }
+  .day-messages__header h2 { font: inherit; font-size: 15px; margin: 0; }
+  .day-messages button { background: transparent; border: 0; color: #526349; font: inherit; font-size: 12px; cursor: pointer; padding: 5px; }
+  .day-messages button:disabled { opacity: .5; cursor: wait; }
+  .day-messages__intro { color: #87877b; font-size: 12px; margin: 14px 0; }
+  .day-messages__list { flex: 1; min-height: 0; overflow-y: auto; padding: 0; margin: 0; list-style: none; }
+  .day-messages__item { padding: 16px 0; border-bottom: 1px solid #e5e7de; }
+  .day-messages__meta { display: flex; align-items: baseline; flex-wrap: wrap; gap: 10px; }
+  .day-messages__meta strong { font-weight: 500; font-size: 13px; }
+  .day-messages__meta time { color: #999c92; font-size: 11px; }
+  .day-messages__item p { font-size: 14px; margin: 8px 0; line-height: 1.7; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .day-messages__item blockquote { font-size: 12px; padding: 6px 10px; margin: 10px 0; border-left: 2px solid #c7b55b; color: #737b6b; }
+  .day-messages__item a { color: #526349; font-size: 12px; text-decoration: none; }
+  .day-messages__item a:hover { text-decoration: underline; }
+  .day-messages__footer { display: flex; justify-content: space-between; align-items: center; padding-top: 12px; }
+  .day-messages__status { margin: 0; color: #87877b; font-size: 12px; }
+  body.day-messages-open { overflow: hidden; }
+  @media(max-width: 600px) { .masthead__inner-wrap { padding-right: 58px; } .day-message-bell { right: 12px; } .day-messages__panel { width: 100%; padding: 20px; } }
+</style>
+<button class="day-message-bell" type="button" aria-label="全站评论消息" aria-haspopup="dialog" aria-expanded="false" aria-controls="day-messages">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9Z"/><path d="M10 21h4M12 2V1"/></svg>
+  <span class="day-message-badge" hidden aria-hidden="true"></span>
+</button>
+<div class="day-messages" id="day-messages" hidden data-api="{{ site.blog_comments_api | escape }}">
+  <section class="day-messages__panel" role="dialog" aria-modal="true" aria-labelledby="day-messages-title">
+    <div class="day-messages__header"><h2 id="day-messages-title">全站评论</h2><button type="button" data-messages-close aria-label="关闭消息">关闭 ×</button></div>
+    <p class="day-messages__intro">所有文章的评论、回复与批注，最新的在前。</p>
+    <ol class="day-messages__list"></ol>
+    <div class="day-messages__footer"><p class="day-messages__status" role="status" aria-live="polite"></p><button type="button" data-messages-more hidden>加载更多</button><button type="button" data-messages-refresh>刷新</button></div>
+  </section>
+  <div hidden data-message-pages><span data-path="/blog/" data-title="博客留言区"></span>{% for post in site.posts %}<span data-path="{{ post.comments_page | default: post.url | escape }}" data-title="{{ post.title | escape }}"></span>{% endfor %}</div>
+</div>
+<script src="{{ '/assets/js/messages.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>

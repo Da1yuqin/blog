@@ -1,0 +1,136 @@
+<noscript><style>img[data-observe-image] { display: none; }</style></noscript>
+<style>
+  .day-image-frame { position: relative; }
+  span.day-image-frame { display: inline-block; max-width: 100%; vertical-align: middle; line-height: 0; }
+  span.day-image-frame > img { vertical-align: middle; }
+  .day-image-managed { transition: opacity .24s ease; }
+  img.day-image-loading { opacity: 0; }
+  .day-image-pending::before, .day-image-failed::before, .day-image-failed::after { content: ''; position: absolute; pointer-events: none; z-index: 1; }
+  .day-image-pending::before, .day-image-failed::before { inset: 0; border-radius: inherit; background: #f8f6ef; }
+  .day-image-failed::after { content: '图片暂未加载'; inset: 0; display: flex; align-items: center; justify-content: center; color: #87877b; font: 12px/1.6 sans-serif; }
+  .day-image-loader { position: absolute; inset: 0; z-index: 2; display: none; align-items: center; justify-content: center; overflow: hidden; border-radius: inherit; pointer-events: none; }
+  .day-image-pending > .day-image-loader { display: flex; }
+  .day-image-runner { width: 120px; max-width: 82%; display: flex; flex-direction: column; align-items: center; line-height: 1; }
+  .day-image-dog { display: block; width: 84px; max-width: 100%; aspect-ratio: 1; margin-bottom: -4px; background: url("{{ '/images/loading-beagle-run.webp' | relative_url }}") 0% 0% / 200% 200% no-repeat; }
+  .day-image-treadmill { position: relative; width: 100px; max-width: 100%; height: 6px; box-sizing: border-box; overflow: hidden; border: 1px solid #93684c; border-radius: 99px; background: #fff0d6; }
+  .day-image-treadmill::before { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(110deg, #f0c48f 0 8px, #fff0d6 8px 16px); background-size: 33px 100%; }
+  .day-image-treadmill::after { content: ''; position: absolute; top: 0; bottom: 0; width: 38%; border-radius: inherit; background: linear-gradient(90deg, #9b5f34, #e99a45, #f7cf89); }
+  .day-image-runner::after { content: 'loading'; margin-top: 7px; color: #805e48; font: 10px/1 Georgia, serif; letter-spacing: .15em; }
+  .day-image-pending .day-image-treadmill::before { animation: day-treadmill-belt 1s linear infinite; }
+  .day-image-pending .day-image-treadmill::after { animation: day-treadmill-progress 2.2s ease-in-out infinite; }
+  .day-image-pending .day-image-dog { animation: day-dog-run .7s step-end infinite, day-dog-bob .35s ease-in-out infinite; }
+  @keyframes day-treadmill-belt { to { background-position: -33px 0; } }
+  @keyframes day-treadmill-progress { from { left: -38%; } to { left: 100%; } }
+  @keyframes day-dog-run {
+    0%, 100% { background-position: 0% 0%; }
+    25% { background-position: 100% 0%; }
+    50% { background-position: 0% 100%; }
+    75% { background-position: 100% 100%; }
+  }
+  @keyframes day-dog-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-1px); } }
+  @media (prefers-reduced-motion: reduce) {
+    .day-image-pending .day-image-treadmill::before, .day-image-pending .day-image-treadmill::after,
+    .day-image-pending .day-image-dog { animation: none; background-position: 0% 0%; }
+    .day-image-pending .day-image-treadmill::after { left: 32%; }
+    .day-image-managed { transition: none; }
+  }
+</style>
+<script>
+  (function () {
+    function setup() {
+      var states = new WeakMap();
+      function frameFor(image) {
+        // Keep the existing cropped cover/art frames so their layout stays intact.
+        var frame = image.closest('.az-post__cover, .az-blog__avatar, .az-blog__art--original');
+        if (!frame) {
+          var node = image.closest('picture') || image;
+          frame = document.createElement('span');
+          node.parentNode.insertBefore(frame, node);
+          frame.appendChild(node);
+          frame.style.borderRadius = getComputedStyle(image).borderRadius;
+          // Give percentage-sized images a containing width before their bytes arrive.
+          var width = image.getAttribute('width');
+          if (width) frame.style.width = width + 'px';
+          if (image.classList.contains('az-post__title-image')) frame.style.width = 'min(360px, 100%)';
+          else if (image.classList.contains('day-post-title-image')) frame.style.width = 'min(540px, 100%)';
+        }
+        frame.classList.add('day-image-frame');
+        return frame;
+      }
+      function loaderFor(frame) {
+        // A CSS background and label keep annotation text offsets unchanged.
+        var loader = document.createElement('span');
+        loader.className = 'day-image-loader';
+        loader.setAttribute('aria-hidden', 'true');
+        loader.innerHTML = '<span class="day-image-runner"><span class="day-image-dog"></span><span class="day-image-treadmill"></span></span>';
+        frame.appendChild(loader);
+      }
+      function begin(image) {
+        var state = states.get(image);
+        if (!state.frame) { state.frame = frameFor(image); loaderFor(state.frame); }
+        state.version++;
+        state.frame.classList.remove('day-image-failed');
+        state.frame.classList.add('day-image-pending');
+        image.classList.add('day-image-managed', 'day-image-loading');
+        image.setAttribute('aria-busy', 'true');
+      }
+      function finish(image, success) {
+        // An observed image may still be showing its transparent SVG placeholder.
+        if (image.hasAttribute('data-src') || !image.getAttribute('src')) return;
+        var state = states.get(image), version = state.version;
+        var decoded = success && image.decode ? image.decode().catch(function () {}) : Promise.resolve();
+        decoded.then(function () {
+          if (state.version !== version || !state.frame) return;
+          state.frame.classList.remove('day-image-pending');
+          state.frame.classList.toggle('day-image-failed', !success);
+          image.classList.toggle('day-image-loading', !success);
+          image.removeAttribute('aria-busy');
+        });
+      }
+      function inspect(image) {
+        if (image.hasAttribute('data-src') || !image.getAttribute('src')) return;
+        if (image.complete) finish(image, image.naturalWidth > 0);
+      }
+      var observer = 'IntersectionObserver' in window ? new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) { load(entry.target); observer.unobserve(entry.target); }
+        });
+      }, {rootMargin: '400px 0px'}) : null;
+      function load(image) {
+        if (image.dataset.srcset) image.srcset = image.dataset.srcset;
+        image.src = image.dataset.src;
+        image.removeAttribute('data-src');
+        image.removeAttribute('data-srcset');
+      }
+      function prepare(image) {
+        if (states.has(image)) return;
+        states.set(image, {frame: null, version: 0});
+        image.addEventListener('load', function () { finish(image, true); });
+        image.addEventListener('error', function () { finish(image, false); });
+        // Cached images are already visible; avoid a needless loading flash.
+        if (!image.hasAttribute('data-src') && image.complete && image.naturalWidth > 0) return;
+        begin(image); inspect(image);
+        if (image.hasAttribute('data-observe-image') && image.dataset.src) {
+          if (observer) observer.observe(image); else load(image);
+        }
+      }
+      document.querySelectorAll('#main img, .sidebar img').forEach(prepare);
+      // Paging, category switching, and later content can start new image requests.
+      new MutationObserver(function (records) {
+        records.forEach(function (record) {
+          if (record.type === 'attributes' && states.has(record.target)) {
+            begin(record.target); inspect(record.target);
+          } else if (record.type === 'childList') {
+            record.addedNodes.forEach(function (node) {
+              if (node.nodeType !== 1) return;
+              if (node.matches('img') && node.closest('#main, .sidebar')) prepare(node);
+              node.querySelectorAll('img').forEach(function (image) { if (image.closest('#main, .sidebar')) prepare(image); });
+            });
+          }
+        });
+      }).observe(document.getElementById('main') || document.body, {subtree: true, childList: true, attributes: true, attributeFilter: ['src', 'srcset']});
+    }
+    if (document.getElementById('main')) setup();
+    else document.addEventListener('DOMContentLoaded', setup, {once: true});
+  }());
+</script>

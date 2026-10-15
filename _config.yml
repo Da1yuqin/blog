@@ -1,0 +1,51 @@
+title: "Day / Journal"
+description: "这里记录我的随笔、研究笔记和项目复盘。"
+repository: "Da1yuqin/blog"
+url: "https://da1yuqin.github.io"
+baseurl: "/blog"
+homepage_enabled: false
+author:
+  name: "Day"
+  github: "Da1yuqin"
+google_analytics_id: "G-PRZP1TVEV"
+blog_comments_api: "https://day-blog-comments.pages.dev"
+blog_visit_counter: true
+include:
+  - _pages
+exclude:
+  - README.md
+  - Gemfile
+  - Gemfile.lock
+  - outputs
+  - assets/js/_main.js
+  - assets/js/plugins
+  - assets/js/vendor
+encoding: "utf-8"
+markdown: kramdown
+highlighter: rouge
+excerpt_separator: "\n\n"
+sass:
+  sass_dir: _sass
+  style: compressed
+permalink: /:title/
+timezone: Asia/Shanghai
+defaults:
+  - scope:
+      path: ""
+      type: pages
+    values:
+      layout: default
+      author_profile: false
+  - scope:
+      path: ""
+      type: posts
+    values:
+      layout: post
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
+  - jekyll-redirect-from
+whitelist:
+  - jekyll-feed
+  - jekyll-sitemap
+  - jekyll-redirect-from

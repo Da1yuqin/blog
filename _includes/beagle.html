@@ -1,0 +1,76 @@
+{% assign day_pet_name = site.time | date: "Day %d" %}
+<aside class="beagle" aria-label="{{ day_pet_name }}，你的小狗伴侣" hidden>
+  <div class="beagle__bubble" id="beagle-message" hidden>
+    <div class="beagle__header"><span><span data-day-name>{{ day_pet_name }}</span> <span class="beagle__mood" aria-hidden="true">🐾</span></span><button class="beagle__close" type="button" aria-label="收起对话">×</button></div>
+    <p class="beagle__words" role="status" aria-live="polite"></p>
+  </div>
+  <button class="beagle__dog" type="button" aria-label="摸摸 {{ day_pet_name }}" aria-controls="beagle-message" aria-expanded="false" title="{{ day_pet_name }} 🐾"><span class="beagle__sprite" aria-hidden="true"></span></button>
+</aside>
+
+<style>
+  .beagle { position: fixed; right: 20px; bottom: max(16px, env(safe-area-inset-bottom)); z-index: 1000; width: 132px; color: #493329; font-family: inherit; }
+  .beagle [hidden], .beagle[hidden] { display: none !important; }
+  .beagle button { font-family: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .beagle button:focus-visible { outline: 3px solid #aa6331; outline-offset: 4px; }
+  .beagle__dog { display: block; width: 132px; height: 132px; padding: 0; border: 0; background: transparent; touch-action: manipulation; }
+  .beagle__sprite { display: block; width: 100%; height: 100%; background: url('{{ site.data.site_images["/images/beagle-sprites.png"].src | relative_url }}') 0 0 / 300% 100% no-repeat; transform-origin: 50% 90%; transition: transform .15s; animation: beagle-breathe 5s ease-in-out infinite; filter: drop-shadow(0 4px 3px rgba(66, 39, 23, .12)); }
+  .beagle.is-speaking .beagle__sprite { animation: beagle-hop .6s ease-in-out; }
+  .beagle__dog:hover .beagle__sprite { transform: rotate(-5deg); }
+  .beagle__bubble { position: absolute; right: 0; bottom: 146px; width: min(278px, calc(100vw - 32px)); box-sizing: border-box; padding: 14px 16px 12px; border: 1px solid #e5c5a4; border-radius: 18px 18px 6px 18px; background: #fffaf2; box-shadow: 0 8px 26px rgba(88, 59, 33, .12); animation: beagle-hello .2s ease-out; }
+  .beagle__bubble:after { content: ''; position: absolute; right: 46px; bottom: -7px; width: 12px; height: 12px; background: #fffaf2; border-right: 1px solid #e5c5a4; border-bottom: 1px solid #e5c5a4; transform: rotate(45deg); }
+  .beagle__header { display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 11px; letter-spacing: .03em; color: #9a7151; }
+  .beagle__close { display: grid; place-items: center; width: 28px; height: 28px; padding: 0; margin: -6px -8px -4px 0; border: 0; background: transparent; color: #9a7151; font-size: 21px; line-height: 1; }
+  .beagle .beagle__words { margin: 9px 0 0; font-size: 14px; line-height: 1.7; color: #493329; overflow-wrap: anywhere; }
+  @keyframes beagle-breathe { 0%, 100% { transform: translateY(0) rotate(-1deg); } 50% { transform: translateY(-3px) rotate(1deg); } }
+  @keyframes beagle-hop { 0%, 100% { transform: translateY(0); } 35% { transform: translateY(-10px) rotate(-5deg); } 65% { transform: translateY(-3px) rotate(4deg); } }
+  @keyframes beagle-hello { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: translateY(0); } }
+  @media (max-width: 600px) { .beagle { right: 12px; width: 88px; } .beagle__dog { width: 88px; height: 88px; } .beagle__bubble { bottom: 102px; width: min(260px, calc(100vw - 24px)); } .beagle__bubble:after { right: 31px; } }
+  @media (prefers-reduced-motion: reduce) { .beagle__sprite, .beagle.is-speaking .beagle__sprite, .beagle__bubble { animation: none; } }
+</style>
+
+<script>
+  (function () {
+    var pet = document.querySelector('.beagle');
+    var bubble = pet.querySelector('.beagle__bubble');
+    var dog = pet.querySelector('.beagle__dog');
+    var words = pet.querySelector('.beagle__words');
+    var hideTimer, hopTimer;
+    var dateFormatter = new Intl.DateTimeFormat('en', { timeZone: 'Asia/Shanghai', day: '2-digit' });
+    function updateName() {
+      var name = 'Day ' + dateFormatter.format(new Date());
+      pet.querySelectorAll('[data-day-name]').forEach(function (label) { label.textContent = name; });
+      pet.setAttribute('aria-label', name + '，你的小狗伴侣');
+      dog.setAttribute('aria-label', '摸摸 ' + name);
+      dog.title = name + ' 🐾';
+    }
+    function closeBubble() {
+      bubble.hidden = true;
+      dog.setAttribute('aria-expanded', 'false');
+      clearTimeout(hideTimer);
+    }
+    dog.addEventListener('click', function () {
+      updateName();
+      words.textContent = '我不会说话，谢谢';
+      bubble.hidden = false;
+      dog.setAttribute('aria-expanded', 'true');
+      pet.classList.remove('is-speaking');
+      void pet.offsetWidth;
+      pet.classList.add('is-speaking');
+      clearTimeout(hopTimer);
+      hopTimer = setTimeout(function () { pet.classList.remove('is-speaking'); }, 650);
+      clearTimeout(hideTimer);
+      hideTimer = setTimeout(closeBubble, 9000);
+    });
+    pet.querySelector('.beagle__close').addEventListener('click', function () {
+      closeBubble();
+      dog.focus();
+    });
+    pet.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape') { closeBubble(); dog.focus(); }
+    });
+    updateName();
+    document.addEventListener('visibilitychange', updateName);
+    setInterval(updateName, 60000);
+    pet.hidden = false;
+  })();
+</script>

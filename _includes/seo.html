@@ -1,0 +1,12 @@
+{% assign seo_title = page.browser_title | default: page.title | default: site.title %}
+{% assign seo_description = page.description | default: page.excerpt | default: site.description | markdownify | strip_html | strip_newlines %}
+{% assign canonical_url = page.url | absolute_url | replace: '/index.html', '/' %}
+<title>{{ seo_title | escape_once }}{% unless seo_title == site.title %} · Day{% endunless %}</title>
+<meta name="description" content="{{ seo_description | escape_once }}">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:site_name" content="{{ site.title | escape_once }}">
+<meta property="og:title" content="{{ seo_title | escape_once }}">
+<meta property="og:description" content="{{ seo_description | escape_once }}">
+<meta property="og:type" content="{% if page.layout == 'post' %}article{% else %}website{% endif %}">
+<meta property="og:url" content="{{ canonical_url }}">
+<link rel="canonical" href="{{ canonical_url }}">

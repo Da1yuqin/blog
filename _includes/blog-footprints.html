@@ -1,0 +1,111 @@
+<style>
+  .blog-footprints { scroll-margin-top: 90px; margin: 48px 0 24px; color: var(--day-ink, #30362e); font-size: 13px; line-height: 1.6; }
+  .page__content .blog-footprints h2 { margin: 0 0 14px; padding: 0; border: 0; font-family: inherit; font-size: 14px; font-weight: 500; }
+  .blog-comments__editor { border: 1px solid #dedfd8; border-radius: 3px; background: #fff; }
+  .blog-comments__name { display: block; margin: 0 14px; padding: 9px 0; border-bottom: 1px dashed #e4e4df; }
+  .blog-comments__form input:not([type]), .blog-comments__form textarea { display: block; box-sizing: border-box; width: 100%; margin: 0; padding: 6px 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; color: #30362e; font: inherit; }
+  .blog-comments__form input:not([type]) { max-width: 260px; font-size: 13px; }
+  .blog-comments__form textarea { padding: 14px; min-height: 145px; resize: vertical; font-size: 14px; line-height: 1.75; }
+  .blog-comments__form input::placeholder, .blog-comments__form textarea::placeholder { color: #737b6b; opacity: 1; }
+  .blog-comments__form input:focus, .blog-comments__form textarea:focus { outline: 0; box-shadow: inset 0 -1px #73826a; }
+  .blog-comments__actions { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 12px; padding: 10px 14px 14px; }
+  .blog-comments__actions fieldset { display: flex; flex-wrap: wrap; gap: 16px; margin: 0; padding: 0; border: 0; }
+  .blog-comments__actions label { display: inline-flex; align-items: center; gap: 5px; margin: 0; font-size: 12px; font-weight: normal; color: #74796f; cursor: pointer; }
+  .blog-comments__actions input[type="radio"] { width: 12px; height: 12px; display: inline-block; margin: 0; accent-color: #526349; }
+  .blog-footprints__button { padding: 6px 16px; margin: 0; border: 1px solid #cdd3c6; border-radius: 3px; background: #fff; color: #526349; font: inherit; font-size: 12px; cursor: pointer; }
+  .blog-footprints__button:hover { background: #f1f4ed; border-color: #73826a; }
+  .blog-footprints__button:disabled { opacity: .45; cursor: not-allowed; }
+  .blog-footprints .blog-comments__privacy, .blog-footprints .blog-comments__status { margin: 9px 0 0; font-size: 12px; color: #737b6b; line-height: 1.6; }
+  .blog-comments__status:empty { display: none; }
+  .blog-footprints .blog-comments__empty { margin: 24px 0; text-align: center; font-size: 13px; color: #737b6b; }
+  .blog-comments__item { padding: 18px 0; border-bottom: 1px solid #e5e7de; font-size: 13px; }
+  .blog-comments__item strong { font-size: 13px; font-weight: 500; }
+  .blog-footprints .blog-comments__item p { margin: 8px 0 0; font-size: 14px; line-height: 1.75; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .blog-comments__item time { margin-left: 12px; color: #999c92; font-size: 11px; }
+  .blog-footprints__stats { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 20px; font-size: 11px; color: #969a90; }
+  .blog-footprints__stats strong { font-weight: normal; }
+  .blog-footprints [hidden] { display: none !important; }
+  .blog-comments__link { border: 0; background: transparent; color: #526349; font: inherit; font-size: 12px; padding: 4px 0; cursor: pointer; }
+  .blog-footprints .blog-comments__annotation-hint { font-size: 12px; margin: -4px 0 16px; color: #737b6b; }
+  .blog-comments__annotation-hint button { margin-left: 12px; border-bottom: 1px solid #cdd3c6; }
+  .blog-comments__context { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 12px; padding: 8px 0; color: #737b6b; }
+  .blog-comments__context span { overflow-wrap: anywhere; }
+  .blog-comments__context button { flex-shrink: 0; white-space: nowrap; }
+  .blog-comments__replies { margin: 8px 0 0 12px; padding-left: 12px; border-left: 1px solid #dedfd8; }
+  .blog-comments__replies .blog-comments__item { padding: 12px 0 0; border: 0; }
+  .blog-comments__reply-to { display: block; font-size: 11px; color: #737b6b; }
+  .day-annotation-selection { position: fixed; z-index: 1100; padding: 6px 12px; border: 1px solid #cdd3c6; border-radius: 3px; background: #fff; color: #526349; font: inherit; font-size: 12px; box-shadow: 0 2px 8px #30362e12; cursor: pointer; }
+  .day-annotation-toggle { position: fixed; right: 16px; top: 86px; z-index: 25; border: 1px solid #dedfd8; background: #fcfbf8; color: #526349; font: inherit; font-size: 12px; padding: 7px 12px; cursor: pointer; }
+  ::highlight(day-notes) { background: #efe3a6; color: inherit; }
+  .day-text-highlight { background: #efe3a6; color: inherit; cursor: pointer; }
+  .day-notes { position: fixed; z-index: 1050; right: 0; top: 64px; bottom: 0; width: 330px; max-width: 100vw; padding: 22px; overflow: auto; background: #fcfbf8; border-left: 1px solid #dedfd8; box-sizing: border-box; color: #30362e; font-size: 13px; line-height: 1.65; }
+  .day-notes[hidden], .day-notes [hidden], .day-annotation-toggle[hidden], .day-annotation-selection[hidden] { display: none !important; }
+  .day-notes__header { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #dedfd8; padding-bottom: 12px; margin-bottom: 18px; }
+  .day-notes h2 { margin: 0; font-size: 14px; font-family: inherit; font-weight: 500; }
+  .day-notes__intro { color: #737b6b; font-size: 12px; }
+  .day-notes blockquote { border-left: 2px solid #c7b55b; padding: 8px 12px; margin: 12px 0; background: #f6f1d9; font-size: 13px; font-style: normal; overflow-wrap: anywhere; }
+  .day-notes .blog-comments__item { padding: 14px 0; }
+  .day-notes .blog-comments__item p { margin: 8px 0; font-size: 14px; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .day-notes .blog-comments__form textarea { min-height: 105px; }
+  .day-notes .blog-comments__privacy, .day-notes .blog-comments__status { font-size: 12px; color: #737b6b; margin: 9px 0; }
+  .day-notes__thread { border-bottom: 1px solid #dedfd8; padding-bottom: 14px; margin-bottom: 18px; }
+  .day-notes__quote { width: 100%; text-align: left; border: 0; background: none; color: inherit; padding: 0; font: inherit; cursor: pointer; }
+  .day-notes__notice { font-size: 12px; color: #737b6b; }
+  @media (min-width: 1200px) { body.day-notes-open { padding-right: 330px; } }
+  @media (max-width: 600px) { .day-notes { width: 100%; top: 57px; } .day-annotation-toggle { top: 68px; right: 12px; } }
+</style>
+
+<section class="blog-footprints" data-api="{{ site.blog_comments_api | escape }}" data-page="{{ page.comments_page | default: page.url | escape }}" id="footprints" aria-labelledby="footprints-title">
+  <h2 id="footprints-title">评论区</h2>
+  <p class="blog-comments__annotation-hint" hidden>选中正文，可以高亮批注。<button type="button" class="blog-comments__link" data-open-notes>查看批注 <span data-note-count>0</span></button></p>
+  <form class="blog-comments__form">
+    <div class="blog-comments__context" hidden><span></span><button type="button" class="blog-comments__link" data-cancel-context>取消</button></div>
+    <div class="blog-comments__editor">
+    <label class="blog-comments__name"><span class="sr-only">昵称（选填）</span><input name="name" maxlength="40" autocomplete="nickname" placeholder="昵称（选填，匿名也可以）" /></label>
+    <label class="blog-comments__content"><span class="sr-only">你的评论</span><textarea name="content" required maxlength="2000" rows="4" placeholder="写下你的想法…"></textarea></label>
+    <div class="blog-comments__actions">
+      <button class="blog-footprints__button" type="submit" disabled>发布评论</button>
+    </div>
+    </div>
+    <p class="blog-comments__status" role="status" aria-live="polite"></p>
+  </form>
+  <div class="blog-comments__list" aria-live="polite"></div>
+  <p class="blog-comments__empty" hidden>来发评论吧～</p>
+  <div class="blog-footprints__stats" aria-live="polite">
+    <span id="busuanzi_container_page_pv" hidden>本页阅读 <strong id="busuanzi_page_pv"></strong> 次</span>
+    <span id="busuanzi_container_page_uv" hidden>本页来访 <strong id="busuanzi_page_uv"></strong> 人</span>
+  </div>
+</section>
+
+<script>
+  (function () {
+    var localPreview = ['localhost', '127.0.0.1', '::1', '[::1]'].indexOf(location.hostname) !== -1;
+    document.addEventListener('click', function (event) {
+      var link = event.target.closest('a');
+      if (!link || localPreview || typeof window.gtag !== 'function') return;
+      if (link.closest('.az-post')) {
+        window.gtag('event', 'blog_article_open', {article_path: new URL(link.href).pathname});
+      }
+    });
+    {% if jekyll.environment == 'production' and site.blog_visit_counter %}
+    if (localPreview) return;
+    var count = document.getElementById('busuanzi_page_pv');
+    var observer = new MutationObserver(function () {
+      if (!/^\d+$/.test(count.textContent)) return;
+      ['page_pv', 'page_uv'].forEach(function (metric) {
+        var value = document.getElementById('busuanzi_' + metric);
+        if (/^\d+$/.test(value.textContent)) document.getElementById('busuanzi_container_' + metric).hidden = false;
+      });
+      observer.disconnect();
+    });
+    observer.observe(document.querySelector('.blog-footprints__stats'), {childList: true, subtree: true});
+    var counter = document.createElement('script');
+    counter.src = 'https://busuanzi.9420.ltd/js';
+    counter.async = true;
+    document.body.appendChild(counter);
+    setTimeout(function () { observer.disconnect(); }, 15000);
+    {% endif %}
+  }());
+</script>
+
+<script src="{{ '/assets/js/comments.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>

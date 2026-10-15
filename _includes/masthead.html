@@ -1,0 +1,19 @@
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        <button><div class="navicon"></div></button>
+        <ul class="visible-links">
+          <li class="masthead__menu-item masthead__menu-item--lg"><button type="button" disabled aria-label="个人主页（招聘季限定·暂未开放）" style="display: inline-block; float: none; position: static; width: auto; height: auto; margin: 0; padding: 0; border: 0; background: transparent; color: #a5a79f; font: inherit; cursor: not-allowed; box-shadow: none;">个人主页（招聘季限定·暂未开放）</button></li>
+          {% for link in site.data.navigation.main %}
+            {% assign navigation_url = link.url | relative_url %}
+            {% if page.url == '/' and link.url == '/' %}{% assign navigation_url = '#articles' %}{% endif %}
+            <li class="masthead__menu-item"><a href="{{ navigation_url }}" target="_self">{{ link.title }}</a></li>
+          {% endfor %}
+        </ul>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+    {% if site.blog_comments_api %}{% include message-bell.html %}{% endif %}
+  </div>
+</div>
