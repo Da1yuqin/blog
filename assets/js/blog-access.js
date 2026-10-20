@@ -20,6 +20,15 @@
   let loggingIn = false;
   let version = 0;
   let renderedHtml = "";
+  const loader = document.createElement("span");
+  loader.className = "blog-access-loader";
+  loader.setAttribute("aria-hidden", "true");
+  loader.innerHTML = '<span class="day-image-runner"><span class="day-image-dog"></span><span class="day-image-treadmill"></span></span>';
+  message.before(loader);
+  function setLoading(value) {
+    panel.dataset.loading = String(value);
+    panel.setAttribute("aria-busy", String(value));
+  }
   function token() {
     if (!storageAvailable) return memoryToken;
     try { memoryToken = sessionStorage.getItem(tokenKey) || ""; return memoryToken; }
@@ -59,6 +68,7 @@
     } finally { clearTimeout(timer); }
   }
   function clearArticle() {
+    setLoading(false);
     article.replaceChildren();
     article.hidden = true;
     article.dataset.loaded = "false";
@@ -84,7 +94,7 @@
     if (reading) return;
     reading = true;
     const current = ++version;
-    if (!renderedHtml) { panel.hidden = false; setStatus("正在加载文章……"); form.hidden = true; retry.hidden = true; }
+    if (!renderedHtml) { panel.hidden = false; setLoading(true); setStatus("正在加载文章……"); form.hidden = true; retry.hidden = true; }
     try {
       const result = await request(`/api/blog/posts/${encodeURIComponent(slug)}`);
       if (current !== version) return;
@@ -100,6 +110,7 @@
       article.hidden = false;
       article.dataset.loaded = "true";
       document.body.dataset.blogArticleLoaded = "true";
+      setLoading(false);
       panel.hidden = true;
       form.reset();
       if (comments) comments.hidden = false;
@@ -124,7 +135,7 @@
         retry.hidden = false;
         setStatus("文章暂时无法加载，请稍后重试。", "error");
       }
-    } finally { if (current === version) reading = false; }
+    } finally { if (current === version) { reading = false; setLoading(false); } }
   }
   form.addEventListener("submit", async event => {
     event.preventDefault();
@@ -133,6 +144,7 @@
     if (!code) { setStatus("请填写邀请码。", "error"); return; }
     loggingIn = true;
     busy(true);
+    setLoading(true);
     setStatus("正在确认阅读权限……");
     try {
       const result = await request("/api/reader/login", "POST", { code });
@@ -140,7 +152,7 @@
       form.reset();
       await loadArticle();
     } catch (error) { setStatus(error.status ? error.message : "暂时无法连接，请稍后再试。", "error"); }
-    finally { loggingIn = false; busy(false); }
+    finally { loggingIn = false; busy(false); setLoading(false); }
   });
   retry.addEventListener("click", loadArticle);
   exit.addEventListener("click", async () => {

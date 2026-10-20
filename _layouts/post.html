@@ -3,7 +3,7 @@ layout: default
 ---
 
 <header style="margin-bottom: 18px;">
-  <h1 style="margin-bottom: 6px;">{% if page.title_image %}<img class="day-post-title-image" src="{{ page.title_image | relative_url }}" alt="{{ page.title | escape }}" width="{{ page.title_image_width }}" height="{{ page.title_image_height }}" decoding="async" />{% else %}{{ page.title }}{% endif %}</h1>
+  <h1 style="margin-bottom: 6px;">{% if page.title_image %}{% include site-image.html src=page.title_image alt=page.title class="day-post-title-image" sizes="(max-width: 640px) 90vw, 540px" loading="eager" priority="high" %}{% else %}{{ page.title }}{% endif %}</h1>
   {% assign revisions = page.revision_history %}
   {% assign latest_revision = revisions | first %}
   <div class="day-post-meta" style="color: rgba(0,0,0,.6); font-size: .95rem;">

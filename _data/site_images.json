@@ -6,46 +6,46 @@
     "height": 264
   },
   "/images/blog-avatar-chicken-original.jpg": {
-    "src": "/images/blog-avatar-chicken-original-1279.webp",
-    "srcset": "/images/blog-avatar-chicken-original-480.webp 480w, /images/blog-avatar-chicken-original-960.webp 960w, /images/blog-avatar-chicken-original-1279.webp 1279w",
+    "src": "/images/responsive/blog-avatar-chicken-original-960.webp",
+    "srcset": "/images/responsive/blog-avatar-chicken-original-480.webp 480w, /images/responsive/blog-avatar-chicken-original-960.webp 960w, /images/responsive/blog-avatar-chicken-original-1279.webp 1279w",
     "width": 1279,
     "height": 1706
   },
   "/images/blog-changsha-comic.png": {
-    "src": "/images/blog-changsha-comic-1536.webp",
-    "srcset": "/images/blog-changsha-comic-480.webp 480w, /images/blog-changsha-comic-960.webp 960w, /images/blog-changsha-comic-1536.webp 1536w",
+    "src": "/images/responsive/blog-changsha-comic-960.webp",
+    "srcset": "/images/responsive/blog-changsha-comic-480.webp 480w, /images/responsive/blog-changsha-comic-960.webp 960w, /images/responsive/blog-changsha-comic-1440.webp 1440w",
     "width": 1536,
     "height": 1024
   },
   "/images/blog-changsha-drawing-outtakes.png": {
-    "src": "/images/blog-changsha-drawing-outtakes-1600.webp",
-    "srcset": "/images/blog-changsha-drawing-outtakes-480.webp 480w, /images/blog-changsha-drawing-outtakes-960.webp 960w, /images/blog-changsha-drawing-outtakes-1600.webp 1600w",
-    "width": 1600,
-    "height": 844
+    "src": "/images/responsive/blog-changsha-drawing-outtakes-960.webp",
+    "srcset": "/images/responsive/blog-changsha-drawing-outtakes-480.webp 480w, /images/responsive/blog-changsha-drawing-outtakes-960.webp 960w, /images/responsive/blog-changsha-drawing-outtakes-1440.webp 1440w",
+    "width": 1842,
+    "height": 972
   },
   "/images/blog-day-plush-avatar.png": {
-    "src": "/images/blog-day-plush-avatar-1254.webp",
-    "srcset": "/images/blog-day-plush-avatar-480.webp 480w, /images/blog-day-plush-avatar-960.webp 960w, /images/blog-day-plush-avatar-1254.webp 1254w",
+    "src": "/images/responsive/blog-day-plush-avatar-960.webp",
+    "srcset": "/images/responsive/blog-day-plush-avatar-480.webp 480w, /images/responsive/blog-day-plush-avatar-960.webp 960w, /images/responsive/blog-day-plush-avatar-1254.webp 1254w",
     "width": 1254,
     "height": 1254
   },
   "/images/blog-investing-coffee.png": {
-    "src": "/images/blog-investing-coffee-1600.webp",
-    "srcset": "/images/blog-investing-coffee-480.webp 480w, /images/blog-investing-coffee-960.webp 960w, /images/blog-investing-coffee-1600.webp 1600w",
-    "width": 1600,
-    "height": 800
+    "src": "/images/responsive/blog-investing-coffee-960.webp",
+    "srcset": "/images/responsive/blog-investing-coffee-480.webp 480w, /images/responsive/blog-investing-coffee-960.webp 960w, /images/responsive/blog-investing-coffee-1440.webp 1440w",
+    "width": 1774,
+    "height": 887
   },
   "/images/blog-taichi-original.jpg": {
-    "src": "/images/blog-taichi-original-1170.webp",
-    "srcset": "/images/blog-taichi-original-480.webp 480w, /images/blog-taichi-original-960.webp 960w, /images/blog-taichi-original-1170.webp 1170w",
+    "src": "/images/responsive/blog-taichi-original-960.webp",
+    "srcset": "/images/responsive/blog-taichi-original-480.webp 480w, /images/responsive/blog-taichi-original-960.webp 960w, /images/responsive/blog-taichi-original-1170.webp 1170w",
     "width": 1170,
     "height": 2532
   },
   "/images/blog-trinity-habits.png": {
-    "src": "/images/blog-trinity-habits-1600.webp",
-    "srcset": "/images/blog-trinity-habits-480.webp 480w, /images/blog-trinity-habits-960.webp 960w, /images/blog-trinity-habits-1600.webp 1600w",
-    "width": 1600,
-    "height": 800
+    "src": "/images/responsive/blog-trinity-habits-960.webp",
+    "srcset": "/images/responsive/blog-trinity-habits-480.webp 480w, /images/responsive/blog-trinity-habits-960.webp 960w, /images/responsive/blog-trinity-habits-1440.webp 1440w",
+    "width": 1774,
+    "height": 887
   },
   "/images/blog-paperbank-accept-team.png": {
     "src": "/images/blog-paperbank-accept-team-1600.webp",
@@ -54,14 +54,14 @@
     "height": 900
   },
   "/images/blog-paperbank-hooks.jpg": {
-    "src": "/images/blog-paperbank-hooks-936.webp",
-    "srcset": "/images/blog-paperbank-hooks-480.webp 480w, /images/blog-paperbank-hooks-936.webp 936w",
+    "src": "/images/responsive/blog-paperbank-hooks-936.webp",
+    "srcset": "/images/responsive/blog-paperbank-hooks-480.webp 480w, /images/responsive/blog-paperbank-hooks-936.webp 936w",
     "width": 936,
     "height": 300
   },
   "/images/blog-paperbank-highlight.jpg": {
-    "src": "/images/blog-paperbank-highlight-936.webp",
-    "srcset": "/images/blog-paperbank-highlight-480.webp 480w, /images/blog-paperbank-highlight-936.webp 936w",
+    "src": "/images/responsive/blog-paperbank-highlight-936.webp",
+    "srcset": "/images/responsive/blog-paperbank-highlight-480.webp 480w, /images/responsive/blog-paperbank-highlight-936.webp 936w",
     "width": 936,
     "height": 660
   },
@@ -77,13 +77,87 @@
     "height": 941
   },
   "/images/blog-starpaper-logo.png": {
-    "src": "/images/blog-starpaper-logo.png",
+    "src": "/images/responsive/blog-starpaper-logo-960.webp",
+    "srcset": "/images/responsive/blog-starpaper-logo-480.webp 480w, /images/responsive/blog-starpaper-logo-960.webp 960w, /images/responsive/blog-starpaper-logo-1440.webp 1440w",
     "width": 2172,
     "height": 724
   },
   "/images/blog-starpaper-night-accept.png": {
-    "src": "/images/blog-starpaper-night-accept.png",
+    "src": "/images/responsive/blog-starpaper-night-accept-960.webp",
+    "srcset": "/images/responsive/blog-starpaper-night-accept-480.webp 480w, /images/responsive/blog-starpaper-night-accept-960.webp 960w, /images/responsive/blog-starpaper-night-accept-1440.webp 1440w",
     "width": 1672,
     "height": 941
+  },
+  "/images/blog-happylog-cover.webp": {
+    "src": "/images/responsive/blog-happylog-cover-960.webp",
+    "srcset": "/images/responsive/blog-happylog-cover-480.webp 480w, /images/responsive/blog-happylog-cover-960.webp 960w, /images/responsive/blog-happylog-cover-1440.webp 1440w",
+    "width": 1671,
+    "height": 941
+  },
+  "/images/blog-serial-fiction-authors.webp": {
+    "src": "/images/responsive/blog-serial-fiction-authors-960.webp",
+    "srcset": "/images/responsive/blog-serial-fiction-authors-480.webp 480w, /images/responsive/blog-serial-fiction-authors-960.webp 960w, /images/responsive/blog-serial-fiction-authors-1440.webp 1440w",
+    "width": 2172,
+    "height": 724
+  },
+  "/images/blog-serial-fiction-characters.png": {
+    "src": "/images/responsive/blog-serial-fiction-characters-960.webp",
+    "srcset": "/images/responsive/blog-serial-fiction-characters-480.webp 480w, /images/responsive/blog-serial-fiction-characters-960.webp 960w, /images/responsive/blog-serial-fiction-characters-1260.webp 1260w",
+    "width": 1260,
+    "height": 810
+  },
+  "/images/blog-serial-fiction-relations.jpg": {
+    "src": "/images/responsive/blog-serial-fiction-relations-960.webp",
+    "srcset": "/images/responsive/blog-serial-fiction-relations-480.webp 480w, /images/responsive/blog-serial-fiction-relations-960.webp 960w, /images/responsive/blog-serial-fiction-relations-1230.webp 1230w",
+    "width": 1230,
+    "height": 1320
+  },
+  "/images/blog-serial-fiction-story.webp": {
+    "src": "/images/responsive/blog-serial-fiction-story-960.webp",
+    "srcset": "/images/responsive/blog-serial-fiction-story-480.webp 480w, /images/responsive/blog-serial-fiction-story-960.webp 960w, /images/responsive/blog-serial-fiction-story-1440.webp 1440w",
+    "width": 2048,
+    "height": 768
+  },
+  "/images/blog-serial-fiction-workstation.jpg": {
+    "src": "/images/responsive/blog-serial-fiction-workstation-960.webp",
+    "srcset": "/images/responsive/blog-serial-fiction-workstation-480.webp 480w, /images/responsive/blog-serial-fiction-workstation-960.webp 960w, /images/responsive/blog-serial-fiction-workstation-1275.webp 1275w",
+    "width": 1275,
+    "height": 1275
+  },
+  "/images/blog-strongresponse-dog.png": {
+    "src": "/images/responsive/blog-strongresponse-dog-960.webp",
+    "srcset": "/images/responsive/blog-strongresponse-dog-480.webp 480w, /images/responsive/blog-strongresponse-dog-960.webp 960w, /images/responsive/blog-strongresponse-dog-1440.webp 1440w",
+    "width": 1672,
+    "height": 941
+  },
+  "/images/blog-strongresponse-logo.png": {
+    "src": "/images/responsive/blog-strongresponse-logo-960.webp",
+    "srcset": "/images/responsive/blog-strongresponse-logo-480.webp 480w, /images/responsive/blog-strongresponse-logo-960.webp 960w, /images/responsive/blog-strongresponse-logo-1440.webp 1440w",
+    "width": 2172,
+    "height": 724
+  },
+  "/images/happylog-guide-gate.jpg": {
+    "src": "/images/responsive/happylog-guide-gate-960.webp",
+    "srcset": "/images/responsive/happylog-guide-gate-480.webp 480w, /images/responsive/happylog-guide-gate-960.webp 960w, /images/responsive/happylog-guide-gate-1440.webp 1440w",
+    "width": 1680,
+    "height": 899
+  },
+  "/images/happylog-guide-home.jpg": {
+    "src": "/images/responsive/happylog-guide-home-960.webp",
+    "srcset": "/images/responsive/happylog-guide-home-480.webp 480w, /images/responsive/happylog-guide-home-960.webp 960w, /images/responsive/happylog-guide-home-1440.webp 1440w",
+    "width": 1680,
+    "height": 899
+  },
+  "/images/happylog-guide-invites.jpg": {
+    "src": "/images/responsive/happylog-guide-invites-960.webp",
+    "srcset": "/images/responsive/happylog-guide-invites-480.webp 480w, /images/responsive/happylog-guide-invites-960.webp 960w, /images/responsive/happylog-guide-invites-1440.webp 1440w",
+    "width": 1867,
+    "height": 1391
+  },
+  "/images/happylog-guide-reader.jpg": {
+    "src": "/images/responsive/happylog-guide-reader-960.webp",
+    "srcset": "/images/responsive/happylog-guide-reader-480.webp 480w, /images/responsive/happylog-guide-reader-960.webp 960w, /images/responsive/happylog-guide-reader-1440.webp 1440w",
+    "width": 1663,
+    "height": 890
   }
 }

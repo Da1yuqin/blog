@@ -7,7 +7,13 @@
   img.day-image-loading { opacity: 0; }
   .day-image-pending::before, .day-image-failed::before, .day-image-failed::after { content: ''; position: absolute; pointer-events: none; z-index: 1; }
   .day-image-pending::before, .day-image-failed::before { inset: 0; border-radius: inherit; background: #f8f6ef; }
-  .day-image-failed::after { content: '图片暂未加载'; inset: 0; display: flex; align-items: center; justify-content: center; color: #87877b; font: 12px/1.6 sans-serif; }
+  .day-image-failed::after { content: '图片暂未加载'; inset: 0 0 28px; display: flex; align-items: center; justify-content: center; color: #87877b; font: 12px/1.6 sans-serif; }
+  .day-image-pending:not([data-day-image-sized]), .day-image-failed:not([data-day-image-sized]) { min-height: 112px; }
+  .day-image-retry { position: absolute; z-index: 3; bottom: 12%; left: 50%; transform: translateX(-50%); padding: 5px 12px; border: 1px solid #c8ccb9; border-radius: 3px; color: #526349; background: #fffef8; cursor: pointer; white-space: nowrap; }
+  .day-image-retry::after { content: '重试加载'; font: 11px/1.6 sans-serif; }
+  .day-image-retry:hover { background: #edf0e5; }
+  .day-image-retry:focus-visible { outline: 2px solid #8e9d80; outline-offset: 3px; }
+  .day-image-retry[hidden] { display: none !important; }
   .day-image-loader { position: absolute; inset: 0; z-index: 2; display: none; align-items: center; justify-content: center; overflow: hidden; border-radius: inherit; pointer-events: none; }
   .day-image-pending > .day-image-loader { display: flex; }
   .day-image-runner { width: 120px; max-width: 82%; display: flex; flex-direction: column; align-items: center; line-height: 1; }
@@ -15,10 +21,10 @@
   .day-image-treadmill { position: relative; width: 100px; max-width: 100%; height: 6px; box-sizing: border-box; overflow: hidden; border: 1px solid #93684c; border-radius: 99px; background: #fff0d6; }
   .day-image-treadmill::before { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(110deg, #f0c48f 0 8px, #fff0d6 8px 16px); background-size: 33px 100%; }
   .day-image-treadmill::after { content: ''; position: absolute; top: 0; bottom: 0; width: 38%; border-radius: inherit; background: linear-gradient(90deg, #9b5f34, #e99a45, #f7cf89); }
-  .day-image-runner::after { content: 'loading'; margin-top: 7px; color: #805e48; font: 10px/1 Georgia, serif; letter-spacing: .15em; }
-  .day-image-pending .day-image-treadmill::before { animation: day-treadmill-belt 1s linear infinite; }
-  .day-image-pending .day-image-treadmill::after { animation: day-treadmill-progress 2.2s ease-in-out infinite; }
-  .day-image-pending .day-image-dog { animation: day-dog-run .7s step-end infinite, day-dog-bob .35s ease-in-out infinite; }
+  .day-image-runner::after { content: '加载中'; margin-top: 7px; color: #805e48; font: 10px/1.6 sans-serif; letter-spacing: .15em; }
+  .day-image-pending .day-image-treadmill::before, .blog-access-panel[data-loading="true"] .day-image-treadmill::before { animation: day-treadmill-belt 1s linear infinite; }
+  .day-image-pending .day-image-treadmill::after, .blog-access-panel[data-loading="true"] .day-image-treadmill::after { animation: day-treadmill-progress 2.2s ease-in-out infinite; }
+  .day-image-pending .day-image-dog, .blog-access-panel[data-loading="true"] .day-image-dog { animation: day-dog-run .7s step-end infinite, day-dog-bob .35s ease-in-out infinite; }
   @keyframes day-treadmill-belt { to { background-position: -33px 0; } }
   @keyframes day-treadmill-progress { from { left: -38%; } to { left: 100%; } }
   @keyframes day-dog-run {
@@ -30,8 +36,10 @@
   @keyframes day-dog-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-1px); } }
   @media (prefers-reduced-motion: reduce) {
     .day-image-pending .day-image-treadmill::before, .day-image-pending .day-image-treadmill::after,
-    .day-image-pending .day-image-dog { animation: none; background-position: 0% 0%; }
-    .day-image-pending .day-image-treadmill::after { left: 32%; }
+    .day-image-pending .day-image-dog,
+    .blog-access-panel[data-loading="true"] .day-image-treadmill::before, .blog-access-panel[data-loading="true"] .day-image-treadmill::after,
+    .blog-access-panel[data-loading="true"] .day-image-dog { animation: none; background-position: 0% 0%; }
+    .day-image-pending .day-image-treadmill::after, .blog-access-panel[data-loading="true"] .day-image-treadmill::after { left: 32%; }
     .day-image-managed { transition: none; }
   }
 </style>
@@ -42,8 +50,19 @@
       function frameFor(image) {
         // Keep the existing cropped cover/art frames so their layout stays intact.
         var frame = image.closest('.az-post__cover, .az-blog__avatar, .az-blog__art--original');
+        var cropped = Boolean(frame);
+        // A retry button must be outside any enclosing image link.
+        if (frame && frame.tagName === 'A') {
+          var cover = frame;
+          frame = document.createElement('span');
+          cover.parentNode.insertBefore(frame, cover);
+          frame.appendChild(cover);
+          frame.style.display = 'block';
+          frame.style.width = '100%';
+        }
         if (!frame) {
           var node = image.closest('picture') || image;
+          if (node.parentElement.tagName === 'A' && node.parentElement.childElementCount === 1) node = node.parentElement;
           frame = document.createElement('span');
           node.parentNode.insertBefore(frame, node);
           frame.appendChild(node);
@@ -51,9 +70,15 @@
           // Give percentage-sized images a containing width before their bytes arrive.
           var width = image.getAttribute('width');
           if (width) frame.style.width = width + 'px';
+          var height = image.getAttribute('height');
+          if (Number(width) > 0 && Number(height) > 0) {
+            frame.style.aspectRatio = width + ' / ' + height;
+            frame.setAttribute('data-day-image-sized', '');
+          }
           if (image.classList.contains('az-post__title-image')) frame.style.width = 'min(360px, 100%)';
           else if (image.classList.contains('day-post-title-image')) frame.style.width = 'min(540px, 100%)';
         }
+        if (cropped) frame.setAttribute('data-day-image-sized', '');
         frame.classList.add('day-image-frame');
         return frame;
       }
@@ -67,8 +92,28 @@
       }
       function begin(image) {
         var state = states.get(image);
-        if (!state.frame) { state.frame = frameFor(image); loaderFor(state.frame); }
+        if (!state.frame) {
+          state.frame = frameFor(image); loaderFor(state.frame);
+          state.retry = document.createElement('button');
+          state.retry.type = 'button';
+          state.retry.className = 'day-image-retry';
+          state.retry.setAttribute('aria-label', '重新加载图片：' + (image.alt || '文章配图'));
+          state.retry.hidden = true;
+          // No text node: annotation offsets must not change with loader state.
+          state.retry.addEventListener('click', function (event) {
+            event.preventDefault(); event.stopPropagation();
+            var src = image.getAttribute('src'), srcset = image.getAttribute('srcset');
+            begin(image);
+            image.removeAttribute('src'); image.removeAttribute('srcset');
+            if (srcset) image.setAttribute('srcset', srcset);
+            if (src) image.setAttribute('src', src);
+            inspect(image);
+          });
+          state.frame.appendChild(state.retry);
+        }
         state.version++;
+        state.retry.hidden = true;
+        state.frame.dataset.imageState = 'loading';
         state.frame.classList.remove('day-image-failed');
         state.frame.classList.add('day-image-pending');
         image.classList.add('day-image-managed', 'day-image-loading');
@@ -78,12 +123,15 @@
         // An observed image may still be showing its transparent SVG placeholder.
         if (image.hasAttribute('data-src') || !image.getAttribute('src')) return;
         var state = states.get(image), version = state.version;
-        var decoded = success && image.decode ? image.decode().catch(function () {}) : Promise.resolve();
-        decoded.then(function () {
+        var decoded = success && image.decode ? Promise.resolve().then(function () { return image.decode(); }).then(function () { return true; }, function () { return false; }) : Promise.resolve(success);
+        decoded.then(function (ready) {
           if (state.version !== version || !state.frame) return;
+          ready = ready && image.naturalWidth > 0;
           state.frame.classList.remove('day-image-pending');
-          state.frame.classList.toggle('day-image-failed', !success);
-          image.classList.toggle('day-image-loading', !success);
+          state.frame.classList.toggle('day-image-failed', !ready);
+          state.frame.dataset.imageState = ready ? 'loaded' : 'failed';
+          state.retry.hidden = ready;
+          image.classList.toggle('day-image-loading', !ready);
           image.removeAttribute('aria-busy');
         });
       }
@@ -97,6 +145,7 @@
         });
       }, {rootMargin: '400px 0px'}) : null;
       function load(image) {
+        if (!image.dataset.src) return;
         if (image.dataset.srcset) image.srcset = image.dataset.srcset;
         image.src = image.dataset.src;
         image.removeAttribute('data-src');
@@ -110,11 +159,19 @@
         // Cached images are already visible; avoid a needless loading flash.
         if (!image.hasAttribute('data-src') && image.complete && image.naturalWidth > 0) return;
         begin(image); inspect(image);
-        if (image.hasAttribute('data-observe-image') && image.dataset.src) {
-          if (observer) observer.observe(image); else load(image);
+        if (image.dataset.src) {
+          if (image.hasAttribute('data-observe-image') && observer) observer.observe(image); else load(image);
         }
       }
+      function scan(root) {
+        if (root.matches && root.matches('img')) prepare(root);
+        root.querySelectorAll('img').forEach(prepare);
+      }
       document.querySelectorAll('#main img, .sidebar img').forEach(prepare);
+      document.addEventListener('day-article-loaded', function () {
+        var article = document.querySelector('[data-blog-article]');
+        if (article) scan(article);
+      });
       // Paging, category switching, and later content can start new image requests.
       new MutationObserver(function (records) {
         records.forEach(function (record) {

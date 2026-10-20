@@ -6,7 +6,9 @@
     {% include head/custom.html %}
   </head>
 
-  <body{% if page.layout == 'post' %} class="post-page"{% endif %}>
+  {% assign page_body_class = page.body_class | default: '' | strip %}
+  {% if page.layout == 'post' %}{% assign page_body_class = page_body_class | prepend: 'post-page ' | strip %}{% endif %}
+  <body{% if page_body_class != '' %} class="{{ page_body_class | escape }}"{% endif %}{% if page.access_mode %} data-access="{{ page.access_mode | escape }}"{% endif %}>
 
     {% include browser-upgrade.html %}
     {% include masthead.html %}

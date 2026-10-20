@@ -109,7 +109,7 @@ author_profile: false
 <div class="az-blog">
   <section class="az-blog__profile">
     <div class="az-blog__identity">
-    <p class="az-blog__eyebrow">DAY / JOURNAL <a class="az-blog__admin-link" href="{{ '/admin/' | relative_url }}" target="_self">文章管理</a></p>
+    <p class="az-blog__eyebrow">DAY / JOURNAL <a class="az-blog__admin-link" href="{{ '/admin/' | relative_url }}" target="_self">管理总览</a></p>
     <div class="az-blog__avatar">
       {% include site-image.html src='/images/blog-day-plush-avatar.png' alt='Day 的呆呆小狗玩偶，穿着草莓上衣和绿色流苏裙' sizes='160px' loading='eager' %}
     </div>
@@ -146,10 +146,10 @@ author_profile: false
         {% assign blog_category = 'misc' %}
         {% if post.blog_category == 'travel' or post.blog_category == 'planner' %}{% assign blog_category = post.blog_category %}{% endif %}
         <article class="az-post" data-blog-category="{{ blog_category }}"{% if forloop.index > 5 %} hidden{% endif %}>
-          {% if post.cover %}<a class="az-post__cover az-post__cover--image{% if post.cover_frame == 'taichi' %} az-post__cover--taichi{% elsif post.cover_frame == 'strongresponse' %} az-post__cover--strongresponse{% endif %}" href="{{ post.url | relative_url }}" target="_self" aria-label="{{ post.title }}">{% include site-image.html src=post.cover alt=post.title defer=true %}</a>{% endif %}
+          {% if post.cover %}<a class="az-post__cover az-post__cover--image{% if post.cover_frame == 'taichi' %} az-post__cover--taichi{% elsif post.cover_frame == 'strongresponse' %} az-post__cover--strongresponse{% endif %}" href="{{ post.url | relative_url }}" target="_self" aria-label="{{ post.title }}">{% include site-image.html src=post.cover alt=post.title defer=true sizes="(max-width: 640px) 110px, 210px" %}</a>{% endif %}
           <div class="az-post__body">
             <div class="az-post__meta">{% if post.pinned %}置顶 · {% endif %}{% if post.last_modified_at %}更新于 {% else %}发布于 {% endif %}<time datetime="{{ post_updated | date_to_xmlschema | escape }}">{{ post_updated | date: "%Y-%m-%d %H:%M" }}</time>{% if words > 0 %} · {{ minutes }} min · {{ words }} words{% endif %}{% if post.revision_history and post.revision_history.size > 0 %} · <a href="{{ post.url | relative_url }}#revision-history" target="_self">修改记录</a>{% endif %}</div>
-            <h3 class="az-post__title"><a href="{{ post.url | relative_url }}" target="_self">{% if post.title_image %}<img class="az-post__title-image" src="{{ post.title_image | relative_url }}" alt="{{ post.title | escape }}" width="{{ post.title_image_width }}" height="{{ post.title_image_height }}" loading="lazy" decoding="async" />{% else %}{{ post.title }}{% endif %}</a></h3>
+            <h3 class="az-post__title"><a href="{{ post.url | relative_url }}" target="_self">{% if post.title_image %}{% include site-image.html src=post.title_image alt=post.title class="az-post__title-image" sizes="(max-width: 640px) 65vw, 360px" %}{% else %}{{ post.title }}{% endif %}</a></h3>
             {% if post.public_excerpt %}
               <p class="az-post__excerpt">{{ post.public_excerpt | strip_html | strip_newlines | truncate: 140 }}</p>
             {% endif %}

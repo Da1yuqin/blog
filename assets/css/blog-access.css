@@ -3,6 +3,11 @@
 .page__content .blog-access-panel h2 { margin: 0 0 12px; padding: 0; border: 0; font-size: 20px; font-weight: 500; }
 .page__content .blog-access-status { margin: 0; color: var(--day-muted, #747c6d); font-size: 13px; line-height: 1.9; }
 .blog-access-status[data-kind="error"] { color: #944d3d; }
+.blog-access-loader { display: none; align-items: center; justify-content: flex-start; min-height: 105px; padding: 3px 0 10px; }
+.blog-access-panel[data-loading="true"] > .blog-access-loader { display: flex; }
+.blog-access-loader .day-image-runner { width: 84px; }
+.blog-access-loader .day-image-dog { width: 64px; }
+.blog-access-loader .day-image-treadmill { width: 76px; }
 .blog-access-form { margin-top: 19px; }
 .blog-access-form label { display: block; margin-bottom: 8px; color: #46513e; font-size: 12px; }
 .blog-access-input-row { display: flex; align-items: stretch; gap: 9px; }
