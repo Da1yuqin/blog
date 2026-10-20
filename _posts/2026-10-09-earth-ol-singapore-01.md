@@ -1,18 +1,19 @@
 ---
-title: "新加坡打卡 ++"
+title: 新加坡打卡 ++
 date: 2026-10-09 22:36:18 +0800
-categories: [blog]
-blog_category: travel
-tags: [地球OL打卡, 新加坡]
-layout: post
-redirect_from: /earth-ol-singapore-02/
-excerpt: "地图上的这一站，值得单独留一页。"
 permalink: /earth-ol-singapore-01/
+categories:
+- blog
+blog_category: travel
+tags:
+- 地球OL打卡
+- 新加坡
+layout: post
 comments_page: /blog/earth-ol-singapore-01/
+redirect_from: /earth-ol-singapore-02/
+blog_access_id: blog-earth-ol-singapore-01
+public_excerpt: 文章是否公开由作者设置；私密文章凭邀请码阅读。
+public_description: Day 的文章。私密内容需要相应阅读邀请。
+public_word_count: 0
+excerpt: ''
 ---
-
-新加坡打卡。
-
-地图上的这一站，值得单独留一页。先记一个坐标，再慢慢讲故事。
-
-新加坡，第二次打卡。熟悉的地方，也可以留一个新的视角。

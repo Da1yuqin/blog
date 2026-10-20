@@ -1,15 +1,18 @@
 ---
-title: "日本打卡"
+title: 日本打卡
 date: 2026-10-09 22:36:20 +0800
-categories: [blog]
-blog_category: travel
-tags: [地球OL打卡, 日本]
-layout: post
-excerpt: "地球 OL：日本这一站。"
 permalink: /earth-ol-japan/
+categories:
+- blog
+blog_category: travel
+tags:
+- 地球OL打卡
+- 日本
+layout: post
 comments_page: /blog/earth-ol-japan/
+blog_access_id: blog-earth-ol-japan
+public_excerpt: 文章是否公开由作者设置；私密文章凭邀请码阅读。
+public_description: Day 的文章。私密内容需要相应阅读邀请。
+public_word_count: 0
+excerpt: ''
 ---
-
-地球 OL：日本这一站。
-
-先记下一次打卡，细节留给想讲故事的时候。

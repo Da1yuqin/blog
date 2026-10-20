@@ -1,21 +1,18 @@
 ---
-title: "理财要在没钱的时候开始学习"
+title: 理财要在没钱的时候开始学习
 date: 2026-10-09 20:40:00 +0800
-categories: [blog]
-tags: [生活, 理财]
+permalink: /investing-before-money/
+categories:
+- blog
+tags:
+- 生活
+- 理财
 layout: post
 cover: /images/blog-investing-coffee.png
-excerpt: "但是，妈呀，我的基金，发生了什么，为什么黄金都掉了这么多，你不是避险产品吗喂😭"
-permalink: /investing-before-money/
 comments_page: /blog/investing-before-money/
+blog_access_id: blog-investing-before-money
+public_excerpt: 文章是否公开由作者设置；私密文章凭邀请码阅读。
+public_description: Day 的文章。私密内容需要相应阅读邀请。
+public_word_count: 0
+excerpt: ''
 ---
-
-所以现在对我来说就是最好的时机（穷鬼）
-
-![蓝眼睛的女性德牧穿着西装，坐在落地窗旁喝咖啡，身后是股票大屏，画面以白色和暖黄色为主]({{ '/images/blog-investing-coffee.png' | relative_url }})
-
-但是，妈呀，我的基金，发生了什么，为什么黄金都掉了这么多，你不是避险产品吗喂😭
-
-一旦开始碰理财产品，我的财富将会受到巨大的冲击。
-
-但是没有关系，我将从今天起当作某些钱并不存在过，一年以后再把它们想起来，做一个坚定的投资人

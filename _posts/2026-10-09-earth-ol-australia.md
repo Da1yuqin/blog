@@ -1,21 +1,18 @@
 ---
-title: "澳洲打卡"
+title: 澳洲打卡
 date: 2026-10-09 22:36:17 +0800
-categories: [blog]
-blog_category: travel
-tags: [地球OL打卡, 澳洲]
-layout: post
-excerpt: "布里斯本、悉尼，还有一趟让我嗷嗷吐的观鲸船。"
 permalink: /earth-ol-australia/
+categories:
+- blog
+blog_category: travel
+tags:
+- 地球OL打卡
+- 澳洲
+layout: post
 comments_page: /blog/earth-ol-australia/
+blog_access_id: blog-earth-ol-australia
+public_excerpt: 文章是否公开由作者设置；私密文章凭邀请码阅读。
+public_description: Day 的文章。私密内容需要相应阅读邀请。
+public_word_count: 0
+excerpt: ''
 ---
-
-去了布里斯本，悉尼。
-
-<p>每天超绝绕不开悉尼歌剧院...怎么只有一个这么经典的景点啊！</p>
-
-观鲸船项目是一款筛选出强壮体魄人群的绝好项目。
-
-<p>（嗷嗷吐，好冷，好晃，好困...）</p>
-
-以及什么都看不见啊！根本没有在面前的鲸鱼啊！

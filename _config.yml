@@ -8,6 +8,7 @@ author:
   name: "Day"
   github: "Da1yuqin"
 google_analytics_id: "G-PRZP1TVEV"
+blog_access_api: "https://ragged-man-jane-snow.cr4gz7cdb9.chatgpt.site"
 blog_comments_api: "https://day-blog-comments.pages.dev"
 blog_visit_counter: true
 include:
@@ -42,10 +43,8 @@ defaults:
     values:
       layout: post
 plugins:
-  - jekyll-feed
   - jekyll-sitemap
   - jekyll-redirect-from
 whitelist:
-  - jekyll-feed
   - jekyll-sitemap
   - jekyll-redirect-from

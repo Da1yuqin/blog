@@ -17,6 +17,8 @@ author_profile: false
   .az-blog__profile { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,.85fr); gap: 64px; align-items: center; padding: 48px 0 56px; border-bottom: 1px solid var(--day-line); }
   .az-blog__identity { min-width: 0; }
   .az-blog .az-blog__eyebrow { margin: 0 0 28px; font-size: 11px; letter-spacing: .18em; color: var(--day-accent); }
+  .az-blog__admin-link { margin-left: 14px; color: #747c6d; font-size: 10px; letter-spacing: .03em; text-decoration: none; }
+  .az-blog__admin-link:hover { color: #526349; text-decoration: underline; }
   .az-blog__avatar { width: 88px; height: 106px; margin-bottom: 20px; }
   .az-blog__avatar img { display: block; width: 100%; height: 100%; object-fit: contain; }
   .az-blog .az-blog__quote { margin: 0 0 22px; font-family: "Iowan Old Style", "Palatino Linotype", "Songti SC", "Noto Serif CJK SC", serif; font-size: 34px; font-weight: 500; line-height: 1.55; color: var(--day-ink); }
@@ -107,7 +109,7 @@ author_profile: false
 <div class="az-blog">
   <section class="az-blog__profile">
     <div class="az-blog__identity">
-    <p class="az-blog__eyebrow">DAY / JOURNAL</p>
+    <p class="az-blog__eyebrow">DAY / JOURNAL <a class="az-blog__admin-link" href="{{ '/admin/' | relative_url }}" target="_self">文章管理</a></p>
     <div class="az-blog__avatar">
       {% include site-image.html src='/images/blog-day-plush-avatar.png' alt='Day 的呆呆小狗玩偶，穿着草莓上衣和绿色流苏裙' sizes='160px' loading='eager' %}
     </div>
@@ -139,17 +141,17 @@ author_profile: false
     <section class="az-blog__posts" id="blog-posts" role="tabpanel" aria-labelledby="blog-tab-all">
       {% for post in blog_posts %}
         {% assign post_updated = post.last_modified_at | default: post.date %}
-        {% assign words = post.content | strip_html | number_of_words %}
+        {% assign words = post.public_word_count | default: 0 | plus: 0 %}
         {% assign minutes = words | divided_by: 260 | plus: 1 %}
         {% assign blog_category = 'misc' %}
         {% if post.blog_category == 'travel' or post.blog_category == 'planner' %}{% assign blog_category = post.blog_category %}{% endif %}
         <article class="az-post" data-blog-category="{{ blog_category }}"{% if forloop.index > 5 %} hidden{% endif %}>
           {% if post.cover %}<a class="az-post__cover az-post__cover--image{% if post.cover_frame == 'taichi' %} az-post__cover--taichi{% elsif post.cover_frame == 'strongresponse' %} az-post__cover--strongresponse{% endif %}" href="{{ post.url | relative_url }}" target="_self" aria-label="{{ post.title }}">{% include site-image.html src=post.cover alt=post.title defer=true %}</a>{% endif %}
           <div class="az-post__body">
-            <div class="az-post__meta">{% if post.pinned %}置顶 · {% endif %}{% if post.last_modified_at %}更新于 {% else %}发布于 {% endif %}<time datetime="{{ post_updated | date_to_xmlschema | escape }}">{{ post_updated | date: "%Y-%m-%d %H:%M" }}</time> · {{ minutes }} min · {{ words }} words{% if post.revision_history and post.revision_history.size > 0 %} · <a href="{{ post.url | relative_url }}#revision-history" target="_self">修改记录</a>{% endif %}</div>
+            <div class="az-post__meta">{% if post.pinned %}置顶 · {% endif %}{% if post.last_modified_at %}更新于 {% else %}发布于 {% endif %}<time datetime="{{ post_updated | date_to_xmlschema | escape }}">{{ post_updated | date: "%Y-%m-%d %H:%M" }}</time>{% if words > 0 %} · {{ minutes }} min · {{ words }} words{% endif %}{% if post.revision_history and post.revision_history.size > 0 %} · <a href="{{ post.url | relative_url }}#revision-history" target="_self">修改记录</a>{% endif %}</div>
             <h3 class="az-post__title"><a href="{{ post.url | relative_url }}" target="_self">{% if post.title_image %}<img class="az-post__title-image" src="{{ post.title_image | relative_url }}" alt="{{ post.title | escape }}" width="{{ post.title_image_width }}" height="{{ post.title_image_height }}" loading="lazy" decoding="async" />{% else %}{{ post.title }}{% endif %}</a></h3>
-            {% if post.excerpt %}
-              <p class="az-post__excerpt">{{ post.excerpt | strip_html | strip_newlines | truncate: 140 }}</p>
+            {% if post.public_excerpt %}
+              <p class="az-post__excerpt">{{ post.public_excerpt | strip_html | strip_newlines | truncate: 140 }}</p>
             {% endif %}
             {% if post.tags and post.tags.size > 0 %}
               <div class="az-post__tags">

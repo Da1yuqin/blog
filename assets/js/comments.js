@@ -6,6 +6,9 @@
   const mainForm = section.querySelector('form'), list = section.querySelector('.blog-comments__list');
   const body = document.querySelector('[data-annotatable]');
   let comments = [], pending = null, ranges = [], lastFocus;
+  let active = !body || !body.hasAttribute('data-blog-article') || body.dataset.loaded === 'true';
+  let generation = 0, notesController;
+  const requests = new Set();
   const element = (tag, className, text) => {
     const el = document.createElement(tag); if (className) el.className = className;
     if (text !== undefined) el.textContent = text; return el;
@@ -16,12 +19,18 @@
   };
   async function request(path, options) {
     const controller = new AbortController(), timer = setTimeout(() => controller.abort(), 12000);
+    requests.add(controller);
+    const headers = new Headers(options?.headers);
     try {
-      const response = await fetch(api.replace(/\/$/, '') + path, {...options, signal: controller.signal});
+      const token = typeof window.getHappylogAccessToken === 'function' ? window.getHappylogAccessToken() : sessionStorage.getItem('happylog-access-token-v1');
+      if (token) headers.set('Authorization', 'Bearer ' + token);
+    } catch (_) {}
+    try {
+      const response = await fetch(api.replace(/\/$/, '') + path, {...options, headers, cache: 'no-store', signal: controller.signal});
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || '评论服务暂时不可用。');
       return result;
-    } finally { clearTimeout(timer); }
+    } finally { clearTimeout(timer); requests.delete(controller); }
   }
   function setContext(form, parent, anchor) {
     form._parent = parent || null; form._anchor = anchor || null;
@@ -31,12 +40,13 @@
   }
   function bindForm(form) {
     const button = form.querySelector('[type=submit]'), status = form.querySelector('.blog-comments__status');
-    button.disabled = !api;
+    button.disabled = !api || !active;
     form.querySelector('[data-cancel-context]').addEventListener('click', () => {
       setContext(form, null, null); if (form === noteForm) {form.hidden = true; quotePreview.hidden = true; noteList.hidden = false;}
     });
     form.addEventListener('submit', async event => {
-      event.preventDefault(); if (button.disabled || !form.reportValidity()) return;
+      event.preventDefault(); if (!active || button.disabled || !form.reportValidity()) return;
+      const current = generation;
       button.disabled = true; status.textContent = '正在发布…';
       const visibility = 'public';
       try {
@@ -44,6 +54,7 @@
           page, name: form.elements.name.value, content: form.elements.content.value, visibility,
           parent_id: form._parent ? form._parent.id : null, anchor: form._anchor || null
         })});
+        if (!active || current !== generation) return;
         form.elements.content.value = '';
         status.textContent = '评论已公开发布。';
         document.dispatchEvent(new Event('day-comment-published'));
@@ -53,13 +64,14 @@
         }
         if (form === noteForm) { panelStatus.textContent = status.textContent; form.hidden = true; quotePreview.hidden = true; noteList.hidden = false; }
       } catch (error) {
+        if (!active || current !== generation) return;
         status.textContent = error.name === 'AbortError' || error.message === 'Failed to fetch' ? '连接失败，请稍后重试；输入内容已保留。' : error.message;
-      } finally { button.disabled = false; }
+      } finally { button.disabled = !api || !active; }
     });
   }
   let panel, noteForm, noteList, quotePreview, selectButton, toggle, panelStatus;
   function openNotes(focus = true) {
-    if (!panel) return;
+    if (!active || !panel) return;
     if (panel.hidden) lastFocus = document.activeElement;
     panel.hidden = false; document.body.classList.add('day-notes-open');
     if (focus) panel.querySelector('[data-close-notes]').focus();
@@ -161,8 +173,17 @@
       });
     }
   }
-  async function load() { const result = await request('/comments?page=' + encodeURIComponent(page)); comments = result.comments; render(); }
-  if (body) {
+  async function load() {
+    if (!active) return;
+    const current = generation;
+    const result = await request('/comments?page=' + encodeURIComponent(page));
+    if (!active || current !== generation) return;
+    comments = result.comments; render();
+  }
+  function setupNotes() {
+    if (!body || panel) return;
+    notesController = new AbortController();
+    const signal = notesController.signal;
     section.querySelector('.blog-comments__annotation-hint').hidden = false;
     panel = element('aside','day-notes'); panel.hidden = true; panel.setAttribute('aria-label','正文批注');
     panel.innerHTML = '<div class="day-notes__header"><h2>正文批注</h2><button type="button" class="blog-comments__link" data-close-notes aria-label="关闭批注">关闭 ×</button></div><p class="day-notes__intro">选中正文后留下批注；公开批注会高亮显示。</p>';
@@ -172,7 +193,7 @@
     panelStatus = element('p','day-notes__notice'); panelStatus.setAttribute('role','status'); panel.append(panelStatus,noteList,quotePreview,noteForm); document.body.append(panel);
     panel.querySelector('[data-close-notes]').addEventListener('click',closeNotes);
     toggle = action('批注 0', () => openNotes()); toggle.className = 'day-annotation-toggle'; document.body.append(toggle);
-    section.querySelector('[data-open-notes]').addEventListener('click', () => openNotes());
+    section.querySelector('[data-open-notes]').addEventListener('click', () => openNotes(), {signal});
     selectButton = action('批注', () => {
       if (!pending) return;
       panelStatus.textContent=''; noteList.hidden=true; setContext(noteForm,null,pending); quotePreview.textContent = pending.exact; quotePreview.hidden = false; noteForm.hidden = false;
@@ -181,6 +202,7 @@
     selectButton.className = 'day-annotation-selection'; selectButton.hidden = true; document.body.append(selectButton);
     selectButton.addEventListener('pointerdown',event => event.preventDefault());
     function selection() {
+      if (!active || !selectButton) return;
       const selected = window.getSelection();
       if (!selected.rangeCount || selected.isCollapsed) {selectButton.hidden=true; return;}
       const range=selected.getRangeAt(0);
@@ -195,9 +217,9 @@
       selectButton.style.left=Math.max(8,Math.min(window.innerWidth-125,rect.left))+'px';
       selectButton.disabled=exact.length>1000; selectButton.textContent=exact.length>1000?'最多选 1000 字':'批注'; selectButton.hidden=false;
     }
-    document.addEventListener('selectionchange',selection);
-    document.addEventListener('scroll',()=>{selectButton.hidden=true;},true);
-    document.addEventListener('keydown',event=>{if(event.key==='Escape'){selectButton.hidden=true;closeNotes();}});
+    document.addEventListener('selectionchange',selection,{signal});
+    document.addEventListener('scroll',()=>{selectButton.hidden=true;},{capture:true,signal});
+    document.addEventListener('keydown',event=>{if(event.key==='Escape'){selectButton.hidden=true;closeNotes();}},{signal});
     body.addEventListener('click',event=>{
       if(!window.getSelection().isCollapsed)return;
       let caret=document.caretRangeFromPoint ? document.caretRangeFromPoint(event.clientX,event.clientY) : null;
@@ -206,10 +228,43 @@
       const prefix=document.createRange();prefix.selectNodeContents(body);prefix.setEnd(caret.startContainer,caret.startOffset);
       const offset=prefix.toString().length, found=ranges.find(r=>offset>=r.start && offset<r.end);
       if(found){openNotes(false);const target=noteList.querySelector('[data-comment-id="'+found.comment.id+'"]');if(target)target.scrollIntoView({block:'nearest'});}
-    });
+    },{signal});
     bindForm(noteForm);
   }
+  function deactivate() {
+    active = false; generation++;
+    requests.forEach(controller => controller.abort()); requests.clear();
+    notesController?.abort();
+    if (window.CSS && CSS.highlights) CSS.highlights.delete('day-notes');
+    if (body) {
+      body.querySelectorAll('mark.day-text-highlight').forEach(mark => mark.replaceWith(...mark.childNodes));
+      body.normalize();
+    }
+    panel?.remove(); toggle?.remove(); selectButton?.remove();
+    panel = noteForm = noteList = quotePreview = selectButton = toggle = panelStatus = undefined;
+    document.body.classList.remove('day-notes-open');
+    comments = []; pending = null; ranges = []; lastFocus = null;
+    list.replaceChildren(); mainForm.reset(); setContext(mainForm,null,null);
+    mainForm.querySelector('[type=submit]').disabled = true;
+    mainForm.querySelector('.blog-comments__status').textContent = '';
+    section.querySelector('.blog-comments__annotation-hint').hidden = true;
+    section.hidden = true;
+  }
+  function activate() {
+    if (body?.hasAttribute('data-blog-article') && body.dataset.loaded !== 'true') return;
+    active = true; section.hidden = false;
+    setupNotes();
+    mainForm.querySelector('[type=submit]').disabled = !api;
+    if (!api) { mainForm.querySelector('.blog-comments__status').textContent='评论暂未开放。'; return; }
+    const current = generation;
+    load().catch(error=>{
+      if (active && current === generation && error.name !== 'AbortError') mainForm.querySelector('.blog-comments__status').textContent='评论暂时加载失败，请稍后刷新。';
+    });
+  }
   bindForm(mainForm);
-  if (!api) {mainForm.querySelector('.blog-comments__status').textContent='评论暂未开放。';return;}
-  load().catch(()=>{mainForm.querySelector('.blog-comments__status').textContent='公开评论暂时加载失败，请稍后刷新。';});
+  if (body?.hasAttribute('data-blog-article')) {
+    document.addEventListener('day-article-loaded',activate);
+    document.addEventListener('day-article-unloaded',deactivate);
+    if (active) activate(); else section.hidden = true;
+  } else activate();
 }());

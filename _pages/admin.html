@@ -1,0 +1,15 @@
+---
+layout: default
+title: "文章管理"
+permalink: /admin/
+description: "管理博客文章的公开状态与阅读邀请。"
+sitemap: false
+---
+<link rel="stylesheet" href="{{ '/assets/css/blog-access.css' | relative_url }}?v={{ site.time | date: '%s' }}">
+<section class="blog-admin-entry">
+  <h1>文章管理</h1>
+  <p>设置每篇文章公开或私密，为阅读邀请选择可以访问的篇目。</p>
+  <p>使用 HappyLog 的同一个管理员账号登录；已绑定验证器时，还需要验证码或恢复码。</p>
+  {% if site.blog_access_api %}<a class="blog-admin-button" href="{{ site.blog_access_api | append: '/admin.html#blog-posts' }}" target="_self">进入管理后台 →</a>{% else %}<p>管理入口暂时无法打开，请稍后再试。</p>{% endif %}
+  <p><a href="{{ '/' | relative_url }}" target="_self">← 返回 Blog</a></p>
+</section>
