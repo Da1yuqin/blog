@@ -50,6 +50,15 @@
       function frameFor(image) {
         // Keep the existing cropped cover/art frames so their layout stays intact.
         var frame = image.closest('.az-post__cover, .az-blog__avatar, .az-blog__art--original');
+        // An absolute image's percentage offsets belong to its existing crop frame.
+        var parent = image.parentElement;
+        if (!frame && parent && parent.tagName === 'FIGURE' && parent.querySelectorAll('img').length === 1) {
+          var parentStyle = getComputedStyle(parent);
+          if (getComputedStyle(image).position === 'absolute' && parentStyle.position !== 'static' &&
+              /^(hidden|clip)$/.test(parentStyle.overflowX) && /^(hidden|clip)$/.test(parentStyle.overflowY)) {
+            frame = parent;
+          }
+        }
         var cropped = Boolean(frame);
         // A retry button must be outside any enclosing image link.
         if (frame && frame.tagName === 'A') {
