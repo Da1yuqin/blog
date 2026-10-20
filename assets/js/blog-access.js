@@ -159,12 +159,17 @@
         if (heading) {
           let titleImage = heading.querySelector('img');
           let titleImageUrl;
-          try { titleImageUrl = new URL(result.titleImage || '', location.origin); } catch {}
+          try { titleImageUrl = new URL(result.titleImageMetadata?.src || result.titleImage || '', location.origin); } catch {}
           if (result.titleImage && titleImageUrl && ['https:', 'http:'].includes(titleImageUrl.protocol)) {
             if (!titleImage || titleImage.alt !== result.title) {
               titleImage = document.createElement('img');
               titleImage.src = titleImageUrl.href; titleImage.alt = result.title;
               titleImage.className = 'day-post-title-image'; titleImage.decoding = 'async';
+              const metadata = result.titleImageMetadata;
+              if (metadata?.width > 0 && metadata?.height > 0) { titleImage.width = metadata.width; titleImage.height = metadata.height; }
+              if (metadata?.srcset && metadata.srcset.split(',').every(item=>/^\/blog\/images\/[^\s,]+\s+\d+w$/.test(item.trim()))) {
+                titleImage.srcset = metadata.srcset; titleImage.sizes = '(max-width: 640px) 90vw, 540px';
+              }
               titleImage.style.width = 'min(540px, 100%)';
               heading.replaceChildren(titleImage);
             }
