@@ -161,6 +161,7 @@
         image.removeAttribute('data-srcset');
       }
       function prepare(image) {
+        if (image.closest('[contenteditable]')) return;
         if (states.has(image)) return;
         states.set(image, {frame: null, version: 0});
         image.addEventListener('load', function () { finish(image, true); });

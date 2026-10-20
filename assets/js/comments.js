@@ -2,12 +2,14 @@
   'use strict';
   const section = document.getElementById('footprints');
   if (!section) return;
-  const api = section.dataset.api, page = section.dataset.page;
+  const api = String(window.BLOG_ACCESS_API_BASE || window.HAPPYLOG_API_BASE || section.dataset.api || '').replace(/\/+$/, '');
+  const page = section.dataset.page, authorAvatar = '/blog/images/blog-day-plush-avatar.png';
   const mainForm = section.querySelector('form'), list = section.querySelector('.blog-comments__list');
   const body = document.querySelector('[data-annotatable]');
   let comments = [], pending = null, ranges = [], lastFocus;
   let active = !body || !body.hasAttribute('data-blog-article') || body.dataset.loaded === 'true';
   let generation = 0, notesController;
+  let admin = false, anonymous = false, sessionToken = '', sessionCheck, sessionVersion = 0;
   const requests = new Set();
   const element = (tag, className, text) => {
     const el = document.createElement(tag); if (className) el.className = className;
@@ -17,42 +19,91 @@
     const button = element('button', 'blog-comments__link', label); button.type = 'button';
     button.addEventListener('click', handler); return button;
   };
+  const commentName = comment => comment.author_role === 'admin' ? 'Me' : comment.name || '匿名';
+  function accessToken() {
+    try { return typeof window.getHappylogAccessToken === 'function' ? window.getHappylogAccessToken() : sessionStorage.getItem('happylog-access-token-v1') || ''; }
+    catch (_) { return ''; }
+  }
   async function request(path, options) {
     const controller = new AbortController(), timer = setTimeout(() => controller.abort(), 12000);
     requests.add(controller);
     const headers = new Headers(options?.headers);
+    const token = accessToken();
+    if (token) headers.set('Authorization', 'Bearer ' + token);
     try {
-      const token = typeof window.getHappylogAccessToken === 'function' ? window.getHappylogAccessToken() : sessionStorage.getItem('happylog-access-token-v1');
-      if (token) headers.set('Authorization', 'Bearer ' + token);
-    } catch (_) {}
-    try {
-      const response = await fetch(api.replace(/\/$/, '') + path, {...options, headers, cache: 'no-store', signal: controller.signal});
+      const response = await fetch(api + (api.endsWith('/api') ? path.replace(/^\/api(?=\/)/, '') : path), {...options, headers, cache: 'no-store', signal: controller.signal});
       const result = await response.json();
-      if (!response.ok) throw new Error(result.error || '评论服务暂时不可用。');
+      if (!response.ok) { const error = new Error(result.error || '评论服务暂时不可用。'); error.status = response.status; throw error; }
       return result;
     } finally { clearTimeout(timer); requests.delete(controller); }
   }
+  function updateAuthorForms() {
+    [mainForm, noteForm].filter(Boolean).forEach(form => {
+      const controls = form.querySelector('[data-comment-author]');
+      const name = form.elements.name, usingAuthor = admin && !anonymous;
+      controls.hidden = !admin;
+      controls.querySelector('input').checked = anonymous;
+      if (usingAuthor && !name.readOnly) { form._visitorName = name.value; name.value = 'Me'; }
+      if (!usingAuthor && name.readOnly) name.value = form._visitorName || '';
+      name.readOnly = usingAuthor;
+      form.querySelector('[data-comment-author-avatar]').hidden = !usingAuthor;
+      controls.querySelector('[data-comment-author-label]').textContent = usingAuthor ? '以 Me 发表评论' : '使用普通评论入口';
+    });
+  }
+  function setAdmin(value) {
+    const changed = admin !== value;
+    admin = value;
+    if (!admin) anonymous = false;
+    updateAuthorForms();
+    if (changed && active) render();
+  }
+  async function refreshAdmin() {
+    const token = accessToken();
+    if (!api || !token) { sessionToken = ''; sessionVersion++; setAdmin(false); return; }
+    if (token !== sessionToken) { sessionToken = token; sessionVersion++; setAdmin(false); sessionCheck = null; }
+    if (sessionCheck) return sessionCheck;
+    const current = sessionVersion;
+    const check = request('/api/session').then(session => {
+      if (current !== sessionVersion || token !== accessToken()) return;
+      setAdmin(session.authenticated === true && session.role === 'admin');
+    }).catch(error => {
+      if (current === sessionVersion && (error.status === 401 || error.status === 403)) setAdmin(false);
+      throw error;
+    });
+    sessionCheck = check;
+    try { await check; } finally { if (sessionCheck === check) sessionCheck = null; }
+  }
+  function checkSession() { refreshAdmin().catch(() => {}); }
   function setContext(form, parent, anchor) {
     form._parent = parent || null; form._anchor = anchor || null;
     const box = form.querySelector('.blog-comments__context');
     box.hidden = !parent && !anchor;
-    box.querySelector('span').textContent = parent ? '回复 ' + (parent.name || '匿名') : anchor ? '批注所选正文' : '';
+    box.querySelector('span').textContent = parent ? '回复 ' + commentName(parent) : anchor ? '批注所选正文' : '';
   }
   function bindForm(form) {
     const button = form.querySelector('[type=submit]'), status = form.querySelector('.blog-comments__status');
     button.disabled = !api || !active;
+    form.querySelector('[data-comment-anonymous]').addEventListener('change', event => {
+      anonymous = event.target.checked; updateAuthorForms();
+    });
     form.querySelector('[data-cancel-context]').addEventListener('click', () => {
       setContext(form, null, null); if (form === noteForm) {form.hidden = true; quotePreview.hidden = true; noteList.hidden = false;}
     });
     form.addEventListener('submit', async event => {
       event.preventDefault(); if (!active || button.disabled || !form.reportValidity()) return;
       const current = generation;
+      const intendedAuthor = admin && !anonymous;
       button.disabled = true; status.textContent = '正在发布…';
       const visibility = 'public';
       try {
+        // The server confirms the session; a stored token alone never grants author status.
+        await refreshAdmin();
+        if (!active || current !== generation) return;
+        if (intendedAuthor && !admin) throw new Error('管理员登录已失效，请重新登录，或选择普通评论入口。');
         await request('/comments', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({
           page, name: form.elements.name.value, content: form.elements.content.value, visibility,
-          parent_id: form._parent ? form._parent.id : null, anchor: form._anchor || null
+          parent_id: form._parent ? form._parent.id : null, anchor: form._anchor || null,
+          ...(admin && !anonymous ? {author_mode: 'admin'} : {})
         })});
         if (!active || current !== generation) return;
         form.elements.content.value = '';
@@ -91,10 +142,48 @@
   function renderComment(comment, host, inNotes, parent) {
     const item = element('article', 'blog-comments__item'); item.dataset.commentId = comment.id;
     const time = element('time', '', new Date(comment.created_at).toLocaleDateString('zh-CN')); time.dateTime = comment.created_at;
-    item.append(element('strong', '', comment.name || '匿名'), time);
-    if (parent) item.append(element('span', 'blog-comments__reply-to', '回复 ' + (parent.name || '匿名')));
-    item.append(element('p', '', comment.content), action('回复', () => replyTo(comment, inNotes))); host.append(item);
+    const meta = element('div', 'blog-comments__meta');
+    if (comment.author_role === 'admin') {
+      const avatar = element('img', 'blog-comments__avatar'); avatar.src = authorAvatar; avatar.alt = 'Me 的头像'; avatar.width = avatar.height = 32; avatar.loading = 'lazy';
+      meta.append(avatar); item.classList.add('blog-comments__item--author');
+    }
+    meta.append(element('strong', '', commentName(comment)), time);
+    if (comment.author_role === 'admin' && comment.edited_at) {
+      const edited = element('span', 'blog-comments__edited', '已编辑'); edited.title = new Date(comment.edited_at).toLocaleString('zh-CN'); meta.append(edited);
+    }
+    item.append(meta);
+    if (parent) item.append(element('span', 'blog-comments__reply-to', '回复 ' + commentName(parent)));
+    const content = element('p', '', comment.content), actions = element('div', 'blog-comments__item-actions');
+    actions.append(action('回复', () => replyTo(comment, inNotes)));
+    if (admin && comment.author_role === 'admin') actions.append(action('编辑', () => editComment(comment, item, content, actions)));
+    item.append(content, actions); host.append(item);
     return item;
+  }
+  function editComment(comment, item, content, actions) {
+    if (!admin || comment.author_role !== 'admin' || item.querySelector('.blog-comments__edit')) return;
+    const form = element('form', 'blog-comments__edit'), label = element('label', '', '编辑评论');
+    const input = element('textarea'); input.value = comment.content; input.required = true; input.maxLength = 2000; input.rows = 4; label.append(input);
+    const buttons = element('div', 'blog-comments__edit-actions'), save = element('button', 'blog-footprints__button', '保存修改'); save.type = 'submit';
+    const status = element('p', 'blog-comments__status'); status.setAttribute('role', 'status');
+    const cancel = action('取消', () => { form.remove(); content.hidden = actions.hidden = false; });
+    buttons.append(save, cancel); form.append(label, buttons, status); content.hidden = actions.hidden = true; actions.after(form); input.focus();
+    form.addEventListener('submit', async event => {
+      event.preventDefault(); if (save.disabled || !form.reportValidity()) return;
+      const current = generation; save.disabled = true; cancel.disabled = true; status.textContent = '正在保存…';
+      try {
+        await refreshAdmin();
+        if (!active || current !== generation) return;
+        if (!admin) throw new Error('管理员登录已失效，请重新登录后编辑。');
+        const result = await request('/comments?id=' + encodeURIComponent(comment.id), {method: 'PATCH', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({content: input.value})});
+        if (!active || current !== generation) return;
+        if (!result.comment || result.comment.author_role !== 'admin' || result.comment.id !== comment.id) throw new Error('保存结果暂时无法确认，请稍后刷新；修改内容已保留。');
+        comments = comments.map(value => value.id === comment.id ? result.comment : value);
+        render(); document.dispatchEvent(new Event('day-comment-published'));
+        load().catch(() => {});
+      } catch (error) {
+        if (active && current === generation && form.isConnected) status.textContent = error.message === 'Failed to fetch' || error.name === 'AbortError' ? '保存失败，请稍后重试；修改内容已保留。' : error.message;
+      } finally { save.disabled = cancel.disabled = false; }
+    });
   }
   function renderThread(root, host, inNotes) {
     const first = renderComment(root, host, inNotes), children = element('div', 'blog-comments__replies');
@@ -230,6 +319,7 @@
       if(found){openNotes(false);const target=noteList.querySelector('[data-comment-id="'+found.comment.id+'"]');if(target)target.scrollIntoView({block:'nearest'});}
     },{signal});
     bindForm(noteForm);
+    updateAuthorForms();
   }
   function deactivate() {
     active = false; generation++;
@@ -245,6 +335,7 @@
     document.body.classList.remove('day-notes-open');
     comments = []; pending = null; ranges = []; lastFocus = null;
     list.replaceChildren(); mainForm.reset(); setContext(mainForm,null,null);
+    mainForm.elements.name.readOnly = false; updateAuthorForms();
     mainForm.querySelector('[type=submit]').disabled = true;
     mainForm.querySelector('.blog-comments__status').textContent = '';
     section.querySelector('.blog-comments__annotation-hint').hidden = true;
@@ -257,11 +348,17 @@
     mainForm.querySelector('[type=submit]').disabled = !api;
     if (!api) { mainForm.querySelector('.blog-comments__status').textContent='评论暂未开放。'; return; }
     const current = generation;
+    checkSession();
     load().catch(error=>{
       if (active && current === generation && error.name !== 'AbortError') mainForm.querySelector('.blog-comments__status').textContent='评论暂时加载失败，请稍后刷新。';
     });
   }
   bindForm(mainForm);
+  document.addEventListener('day-session-changed', () => { sessionVersion++; sessionCheck = null; setAdmin(false); checkSession(); });
+  window.addEventListener('focus', checkSession);
+  window.addEventListener('storage', event => { if (event.key === 'happylog-access-token-v1') checkSession(); });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) checkSession(); });
+  setInterval(() => { if (active && !document.hidden && accessToken()) checkSession(); }, 30000);
   if (body?.hasAttribute('data-blog-article')) {
     document.addEventListener('day-article-loaded',activate);
     document.addEventListener('day-article-unloaded',deactivate);

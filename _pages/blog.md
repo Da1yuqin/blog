@@ -38,6 +38,19 @@ author_profile: false
   .az-blog__category-count { margin-left: 7px; font-size: 10px; opacity: .7; }
   .az-blog .az-blog__category-description { margin: 14px 0 6px; color: #757d6d; font-size: 12px; }
   .az-blog__posts { display: flex; flex-direction: column; }
+  .az-blog__posts:empty { min-height: 210px; }
+  .az-blog__loading { display: flex; align-items: center; gap: 18px; min-height: 115px; margin-top: -180px; margin-bottom: 70px; color: #747c6d; font-size: 12px; }
+  .az-blog__loading[hidden] { display: none; }
+  .az-blog__loading .day-image-runner { flex: 0 0 auto; width: 84px; }
+  .az-blog__loading .day-image-dog { width: 64px; }
+  .az-blog__loading .day-image-treadmill { width: 76px; }
+  .az-blog__loading .day-image-dog { animation: day-dog-run .7s step-end infinite, day-dog-bob .35s ease-in-out infinite; }
+  .az-blog__loading .day-image-treadmill::before { animation: day-treadmill-belt 1s linear infinite; }
+  .az-blog__loading .day-image-treadmill::after { animation: day-treadmill-progress 2.2s ease-in-out infinite; }
+  @media (prefers-reduced-motion: reduce) { .az-blog__loading .day-image-dog, .az-blog__loading .day-image-treadmill::before, .az-blog__loading .day-image-treadmill::after { animation: none; } }
+  .az-blog__loading[data-error="true"] .day-image-runner { display: none; }
+  .az-blog__loading button { border: 0; border-bottom: 1px solid #cdd3c6; padding: 4px 0; background: transparent; color: #526349; font: inherit; cursor: pointer; }
+
   .az-post { display: grid; grid-template-columns: 210px minmax(0,1fr); align-items: center; gap: 32px; padding: 28px 0; border-bottom: 1px solid var(--day-line); background: transparent; }
   .az-post__cover { display: block; position: relative; height: 170px; overflow: hidden; background: #fff; }
   .az-post__cover img { display: block; width: 100%; height: 170px; object-fit: contain; }
@@ -83,29 +96,6 @@ author_profile: false
   }
 </style>
 
-{% assign blog_posts = '' | split: '' %}
-{% for post in site.categories.blog %}
-  {% assign post_updated = post.last_modified_at | default: post.date | date: '%s' | plus: 0 %}
-  {% assign newer_posts = '' | split: '' %}
-  {% assign older_posts = '' | split: '' %}
-  {% for listed_post in blog_posts %}
-    {% assign listed_updated = listed_post.last_modified_at | default: listed_post.date | date: '%s' | plus: 0 %}
-    {% if listed_updated >= post_updated %}
-      {% assign newer_posts = newer_posts | push: listed_post %}
-    {% else %}
-      {% assign older_posts = older_posts | push: listed_post %}
-    {% endif %}
-  {% endfor %}
-  {% assign blog_posts = newer_posts | push: post | concat: older_posts %}
-{% endfor %}
-{% assign pinned_posts = blog_posts | where: 'pinned', true %}
-{% assign unpinned_posts = blog_posts | where_exp: 'post', 'post.pinned != true' %}
-{% assign blog_posts = pinned_posts | concat: unpinned_posts %}
-{% assign travel_posts = blog_posts | where: 'blog_category', 'travel' %}
-{% assign planner_posts = blog_posts | where: 'blog_category', 'planner' %}
-{% assign misc_posts = blog_posts | where_exp: 'post', "post.blog_category != 'travel'" | where_exp: 'post', "post.blog_category != 'planner'" %}
-{% assign misc_count = misc_posts.size %}
-
 <div class="az-blog">
   <section class="az-blog__profile">
     <div class="az-blog__identity">
@@ -119,6 +109,7 @@ author_profile: false
       <p class="az-blog__sub"><a href="#footprints">评论区：聊聊你的想法</a></p>
       <div class="az-blog__socials" aria-label="social links">
         <a href="https://github.com/Da1yuqin" title="GitHub">GH</a>
+        <a href="{{ site.blog_access_api | append: '/api/blog/feed' | escape }}" title="订阅公开文章">RSS</a>
       </div>
     </div>
     </div>
@@ -130,122 +121,27 @@ author_profile: false
   <h2 class="az-blog__section-title" id="articles">Articles</h2>
 
   <div class="az-blog__categories" role="tablist" aria-label="博客分类">
-    <button type="button" role="tab" id="blog-tab-all" aria-selected="true" aria-controls="blog-posts" data-blog-filter="all" data-description="这里记录了全部的博客">全部<span class="az-blog__category-count" aria-hidden="true">{{ blog_posts.size }}</span></button>
-    <button type="button" role="tab" id="blog-tab-misc" aria-selected="false" aria-controls="blog-posts" tabindex="-1" data-blog-filter="misc" data-description="碎碎念，随便看看">杂七杂八<span class="az-blog__category-count" aria-hidden="true">{{ misc_count }}</span></button>
-    <button type="button" role="tab" id="blog-tab-travel" aria-selected="false" aria-controls="blog-posts" tabindex="-1" data-blog-filter="travel" data-description="探索地球中">地球OL打卡<span class="az-blog__category-count" aria-hidden="true">{{ travel_posts.size }}</span></button>
-    <button type="button" role="tab" id="blog-tab-planner" aria-selected="false" aria-controls="blog-posts" tabindex="-1" data-blog-filter="planner" data-description="其实，我也有努力工作">J人模式副产物<span class="az-blog__category-count" aria-hidden="true">{{ planner_posts.size }}</span></button>
+    <button type="button" role="tab" id="blog-tab-all" aria-selected="true" aria-controls="blog-posts" data-blog-filter="all" data-description="这里记录了全部的博客">全部<span class="az-blog__category-count" aria-hidden="true">—</span></button>
+    <button type="button" role="tab" id="blog-tab-misc" aria-selected="false" aria-controls="blog-posts" tabindex="-1" data-blog-filter="misc" data-description="碎碎念，随便看看">杂七杂八<span class="az-blog__category-count" aria-hidden="true">—</span></button>
+    <button type="button" role="tab" id="blog-tab-travel" aria-selected="false" aria-controls="blog-posts" tabindex="-1" data-blog-filter="travel" data-description="探索地球中">地球OL打卡<span class="az-blog__category-count" aria-hidden="true">—</span></button>
+    <button type="button" role="tab" id="blog-tab-planner" aria-selected="false" aria-controls="blog-posts" tabindex="-1" data-blog-filter="planner" data-description="其实，我也有努力工作">J人模式副产物<span class="az-blog__category-count" aria-hidden="true">—</span></button>
   </div>
   <p class="az-blog__category-description" id="blog-category-description" role="status" aria-live="polite">这里记录了全部的博客</p>
 
-  {% if blog_posts and blog_posts.size > 0 %}
-    <section class="az-blog__posts" id="blog-posts" role="tabpanel" aria-labelledby="blog-tab-all">
-      {% for post in blog_posts %}
-        {% assign post_updated = post.last_modified_at | default: post.date %}
-        {% assign words = post.public_word_count | default: 0 | plus: 0 %}
-        {% assign minutes = words | divided_by: 260 | plus: 1 %}
-        {% assign blog_category = 'misc' %}
-        {% if post.blog_category == 'travel' or post.blog_category == 'planner' %}{% assign blog_category = post.blog_category %}{% endif %}
-        <article class="az-post" data-blog-category="{{ blog_category }}"{% if forloop.index > 5 %} hidden{% endif %}>
-          {% if post.cover %}<a class="az-post__cover az-post__cover--image{% if post.cover_frame == 'taichi' %} az-post__cover--taichi{% elsif post.cover_frame == 'strongresponse' %} az-post__cover--strongresponse{% endif %}" href="{{ post.url | relative_url }}" target="_self" aria-label="{{ post.title }}">{% include site-image.html src=post.cover alt=post.title defer=true sizes="(max-width: 640px) 110px, 210px" %}</a>{% endif %}
-          <div class="az-post__body">
-            <div class="az-post__meta">{% if post.pinned %}置顶 · {% endif %}{% if post.last_modified_at %}更新于 {% else %}发布于 {% endif %}<time datetime="{{ post_updated | date_to_xmlschema | escape }}">{{ post_updated | date: "%Y-%m-%d %H:%M" }}</time>{% if words > 0 %} · {{ minutes }} min · {{ words }} words{% endif %}{% if post.revision_history and post.revision_history.size > 0 %} · <a href="{{ post.url | relative_url }}#revision-history" target="_self">修改记录</a>{% endif %}</div>
-            <h3 class="az-post__title"><a href="{{ post.url | relative_url }}" target="_self">{% if post.title_image %}{% include site-image.html src=post.title_image alt=post.title class="az-post__title-image" sizes="(max-width: 640px) 65vw, 360px" %}{% else %}{{ post.title }}{% endif %}</a></h3>
-            {% if post.public_excerpt %}
-              <p class="az-post__excerpt">{{ post.public_excerpt | strip_html | strip_newlines | truncate: 140 }}</p>
-            {% endif %}
-            {% if post.tags and post.tags.size > 0 %}
-              <div class="az-post__tags">
-                {% for t in post.tags %}<span>{{ t }}</span>{% endfor %}
-              </div>
-            {% endif %}
-          </div>
-        </article>
-      {% endfor %}
-    </section>
-  {% else %}
-    <div class="az-blog__empty">这里还没有文章。</div>
-  {% endif %}
+  <section class="az-blog__posts" id="blog-posts" role="tabpanel" aria-labelledby="blog-tab-all" aria-busy="true" data-api="{{ site.blog_access_api | escape }}" data-site-base="{{ '/' | relative_url }}"></section>
+  <div class="az-blog__loading" id="blog-list-loading" role="status" aria-live="polite">
+    <span class="day-image-runner" aria-hidden="true"><span class="day-image-dog"></span><span class="day-image-treadmill"></span></span>
+    <span id="blog-list-status">正在加载文章……</span>
+    <button type="button" id="blog-list-retry" hidden>重新加载</button>
+  </div>
   <p class="az-blog__empty" id="blog-category-empty" hidden>这个分类还没有文章。</p>
   <nav class="az-blog__pagination" id="blog-pagination" aria-label="文章翻页" hidden>
     <button type="button" id="blog-page-prev" aria-controls="blog-posts">上一页</button>
     <span id="blog-page-status" role="status" aria-live="polite"></span>
     <button type="button" id="blog-page-next" aria-controls="blog-posts">下一页</button>
   </nav>
-  <noscript><style>.az-post[hidden] { display: grid !important; } .az-post img[data-src] { display: none; }</style></noscript>
+  <noscript><p class="az-blog__empty">请启用 JavaScript 查看公开文章列表。</p></noscript>
   {% include blog-footprints.html %}
 </div>
 
-<script>
-  (function () {
-    var tabs = Array.from(document.querySelectorAll('[data-blog-filter]'));
-    var posts = Array.from(document.querySelectorAll('[data-blog-category]'));
-    var panel = document.getElementById('blog-posts');
-    var description = document.getElementById('blog-category-description');
-    var empty = document.getElementById('blog-category-empty');
-    var pagination = document.getElementById('blog-pagination');
-    var previous = document.getElementById('blog-page-prev');
-    var nextPage = document.getElementById('blog-page-next');
-    var status = document.getElementById('blog-page-status');
-    var category = 'all';
-    var page = 1;
-    var pageSize = 5;
-
-    function renderPage() {
-      var filtered = posts.filter(function (post) { return category === 'all' || post.dataset.blogCategory === category; });
-      var pageCount = Math.max(1, Math.ceil(filtered.length / pageSize));
-      page = Math.max(1, Math.min(page, pageCount));
-      var visible = filtered.slice((page - 1) * pageSize, page * pageSize);
-      posts.forEach(function (post) {
-        post.hidden = visible.indexOf(post) === -1;
-        if (!post.hidden) {
-          post.querySelectorAll('img[data-src]').forEach(function (image) {
-            if (image.dataset.srcset) image.srcset = image.dataset.srcset;
-            image.src = image.dataset.src;
-            image.removeAttribute('data-src');
-            image.removeAttribute('data-srcset');
-          });
-        }
-      });
-      empty.hidden = filtered.length > 0;
-      pagination.hidden = filtered.length <= pageSize;
-      previous.disabled = page === 1;
-      nextPage.disabled = page === pageCount;
-      status.textContent = '第 ' + page + ' / ' + pageCount + ' 页';
-    }
-
-    function selectTab(tab) {
-      category = tab.dataset.blogFilter;
-      page = 1;
-      tabs.forEach(function (item) {
-        var selected = item === tab;
-        item.setAttribute('aria-selected', String(selected));
-        item.tabIndex = selected ? 0 : -1;
-      });
-      description.textContent = tab.dataset.description;
-      if (panel) panel.setAttribute('aria-labelledby', tab.id);
-      renderPage();
-    }
-    function turnPage(direction) {
-      page += direction;
-      renderPage();
-      document.getElementById('articles').scrollIntoView({ block: 'start', behavior: 'smooth' });
-    }
-    previous.addEventListener('click', function () { turnPage(-1); });
-    nextPage.addEventListener('click', function () { turnPage(1); });
-    renderPage();
-    tabs.forEach(function (tab, index) {
-      tab.addEventListener('click', function () { selectTab(tab); });
-      tab.addEventListener('keydown', function (event) {
-        var next;
-        if (event.key === 'ArrowRight') next = (index + 1) % tabs.length;
-        else if (event.key === 'ArrowLeft') next = (index + tabs.length - 1) % tabs.length;
-        else if (event.key === 'Home') next = 0;
-        else if (event.key === 'End') next = tabs.length - 1;
-        else return;
-        event.preventDefault();
-        tabs[next].focus();
-        selectTab(tabs[next]);
-      });
-    });
-  }());
-</script>
+<script src="{{ '/assets/js/blog-index.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>

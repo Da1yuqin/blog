@@ -31,14 +31,20 @@
   }
   function render(comment) {
     const item = el('li', 'day-messages__item'), meta = el('div', 'day-messages__meta');
-    meta.append(el('strong', '', comment.name || '匿名'));
+    const author = comment.author_role === 'admin';
+    if (author) {
+      const avatar = el('img', 'day-messages__avatar'); avatar.src = '/blog/images/blog-day-plush-avatar.png'; avatar.alt = 'Me 的头像'; avatar.width = avatar.height = 28; avatar.loading = 'lazy'; meta.append(avatar);
+    }
+    meta.append(el('strong', '', author ? 'Me' : comment.name || '匿名'));
     const date = new Date(comment.created_at), time = el('time', '', Number.isNaN(date.getTime()) ? '' : date.toLocaleString('zh-CN', {month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit'}));
-    time.dateTime = comment.created_at; meta.append(time); item.append(meta);
+    time.dateTime = comment.created_at; meta.append(time);
+    if (author && comment.edited_at) meta.append(el('span', 'day-messages__edited', '已编辑'));
+    item.append(meta);
     if (comment.anchor) item.append(el('blockquote', '', comment.anchor.exact));
     item.append(el('p', '', comment.content));
     // Restrict links to same-site paths. Text is rendered with textContent throughout.
     if (/^\/[\w\-/.%]+\/$/.test(comment.page) && !comment.page.includes('..')) {
-      const link = el('a', '', (comment.anchor ? '批注 · ' : comment.parent_id ? '回复 · ' : '') + (titles.get(comment.page) || '查看所在文章') + ' ↗');
+      const link = el('a', '', (comment.anchor ? '批注 · ' : comment.parent_id ? '回复 · ' : '') + (titles.get(comment.page) || '文章留言') + ' ↗');
       link.href = comment.page + '#footprints'; link.target = '_self';
       link.addEventListener('click', hide); item.append(link);
     }

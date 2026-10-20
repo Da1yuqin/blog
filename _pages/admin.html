@@ -8,11 +8,11 @@ body_class: "admin-body blog-admin-body"
 access_mode: "admin"
 ---
 <!-- Generated from the private HappyLog admin template; edit its source. -->
-<link rel="stylesheet" href="{{ '/assets/css/admin-access.css' | relative_url }}?v=b76262d908">
+<link rel="stylesheet" href="{{ '/assets/css/admin-access.css' | relative_url }}?v=4546872114">
 <link rel="stylesheet" href="{{ '/assets/css/admin.css' | relative_url }}?v=0102859a61">
 <script src="{{ '/assets/js/admin-config.js' | relative_url }}?v=a0ca32c1f5"></script>
 <script src="{{ '/assets/js/admin-qrcode.js' | relative_url }}?v=79ec86f828" defer></script>
-<script src="{{ '/assets/js/admin-access.js' | relative_url }}?v=50d853316c" defer></script>
+<script src="{{ '/assets/js/admin-access.js' | relative_url }}?v=f347a1278c" defer></script>
 <div class="admin-main admin-width">
     <section class="admin-login-panel" id="admin-login-panel" aria-labelledby="admin-login-title">
       <p class="admin-eyebrow">内容管理</p>
@@ -56,9 +56,27 @@ access_mode: "admin"
       </section>
       <section class="admin-blog-panel admin-section" id="blog-posts" aria-labelledby="admin-blog-title">
         <div class="admin-list-heading"><h2 id="admin-blog-title">博客文章</h2><span id="admin-blog-count"></span></div>
-        <p class="admin-intro">公开文章可以直接阅读；私密文章需要持有对应篇目权限的邀请码。</p>
+        <p class="admin-intro">所有文章都可以在这里编辑。私密文章只在管理界面列出；获邀读者仍可通过文章链接阅读。</p>
         <p class="access-status" id="admin-blog-status" role="status" aria-live="polite"></p>
         <div class="admin-blog-list" id="admin-blog-list"></div>
+        <section class="admin-article-editor" id="admin-article-editor" aria-labelledby="article-editor-heading" hidden>
+          <div class="admin-list-heading"><h3 id="article-editor-heading">编辑文章</h3><button class="access-text-button" type="button" id="article-editor-close">关闭编辑</button></div>
+          <p class="access-help" id="article-editor-meta"></p>
+          <form class="access-form" id="article-editor-form">
+            <label for="article-editor-title">文章标题</label>
+            <input id="article-editor-title" name="title" maxlength="300" required>
+            <div class="article-editor-mode" role="group" aria-label="正文编辑方式"><button type="button" class="access-text-button" id="article-mode-visual" aria-pressed="true">可视化编辑</button><button type="button" class="access-text-button" id="article-mode-html" aria-pressed="false">HTML</button></div>
+            <div class="article-editor-tools" id="article-editor-tools" role="toolbar" aria-label="正文格式">
+              <button type="button" data-editor-command="bold" aria-label="加粗"><strong>B</strong></button><button type="button" data-editor-command="italic" aria-label="斜体"><em>I</em></button><button type="button" data-editor-command="heading">标题</button><button type="button" data-editor-command="paragraph">正文</button><button type="button" data-editor-command="insertUnorderedList">列表</button><button type="button" data-editor-command="quote">引用</button><button type="button" data-editor-command="link">链接</button><button type="button" data-editor-command="undo">撤销</button>
+            </div>
+            <div class="article-editor-content" id="article-editor-visual" contenteditable="true" role="textbox" aria-label="文章正文" aria-multiline="true" spellcheck="false"></div>
+            <textarea class="article-editor-source" id="article-editor-source" aria-label="文章 HTML 源码" spellcheck="false" hidden></textarea>
+            <p class="access-help">保存后立即更新文章。正文支持图片和常用排版；涉及复杂布局时，可以切换 HTML 编辑。</p>
+            <div class="access-form-actions"><button type="submit" id="article-editor-save">保存更改</button><a class="access-text-button" id="article-editor-open" href="#" target="_blank" rel="noopener">打开文章 ↗</a><button type="button" class="access-text-button" id="article-editor-copy">复制当前 HTML</button></div>
+            <p class="access-status" id="article-editor-status" role="status" aria-live="polite"></p>
+            <button class="access-text-button" type="button" id="article-editor-reload" hidden>载入最新版本</button>
+          </form>
+        </section>
       </section>
       <section class="admin-story-panel admin-section" id="story-library" aria-labelledby="admin-story-title">
         <div class="admin-list-heading"><h2 id="admin-story-title">跑团故事</h2><span id="admin-story-count"></span></div>

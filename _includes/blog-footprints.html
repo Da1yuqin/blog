@@ -3,6 +3,11 @@
   .page__content .blog-footprints h2 { margin: 0 0 14px; padding: 0; border: 0; font-family: inherit; font-size: 14px; font-weight: 500; }
   .blog-comments__editor { border: 1px solid #dedfd8; border-radius: 3px; background: #fff; }
   .blog-comments__name { display: block; margin: 0 14px; padding: 9px 0; border-bottom: 1px dashed #e4e4df; }
+  .blog-comments__name-row { display: flex; align-items: center; gap: 9px; }
+  .blog-comments__avatar { width: 32px; height: 32px; flex: 0 0 32px; border-radius: 50%; object-fit: cover; }
+  .blog-comments__author { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; padding: 8px 14px; border-bottom: 1px solid #e4e4df; font-size: 12px; color: #526349; }
+  .blog-comments__author label { display: inline-flex; align-items: center; gap: 5px; margin: 0; font: inherit; cursor: pointer; }
+  .blog-comments__author input[type="checkbox"] { display: inline-block; width: 13px; height: 13px; margin: 0; accent-color: #526349; }
   .blog-comments__form input:not([type]), .blog-comments__form textarea { display: block; box-sizing: border-box; width: 100%; margin: 0; padding: 6px 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; color: #30362e; font: inherit; }
   .blog-comments__form input:not([type]) { max-width: 260px; font-size: 13px; }
   .blog-comments__form textarea { padding: 14px; min-height: 145px; resize: vertical; font-size: 14px; line-height: 1.75; }
@@ -20,6 +25,13 @@
   .blog-footprints .blog-comments__empty { margin: 24px 0; text-align: center; font-size: 13px; color: #737b6b; }
   .blog-comments__item { padding: 18px 0; border-bottom: 1px solid #e5e7de; font-size: 13px; }
   .blog-comments__item strong { font-size: 13px; font-weight: 500; }
+  .blog-comments__meta { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+  .blog-comments__meta time { margin-left: 4px; }
+  .blog-comments__edited { color: #969a90; font-size: 11px; }
+  .blog-comments__item-actions, .blog-comments__edit-actions { display: flex; align-items: center; gap: 14px; margin-top: 8px; }
+  .blog-comments__edit { margin: 12px 0 0; font-size: 12px; }
+  .blog-comments__edit label { display: block; font-weight: normal; }
+  .blog-comments__edit textarea { display: block; box-sizing: border-box; width: 100%; margin: 6px 0 0; padding: 10px; min-height: 100px; border: 1px solid #cdd3c6; border-radius: 3px; background: #fff; color: #30362e; resize: vertical; font: inherit; font-size: 14px; line-height: 1.75; }
   .blog-footprints .blog-comments__item p { margin: 8px 0 0; font-size: 14px; line-height: 1.75; white-space: pre-wrap; overflow-wrap: anywhere; }
   .blog-comments__item time { margin-left: 12px; color: #999c92; font-size: 11px; }
   .blog-footprints__stats { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 20px; font-size: 11px; color: #969a90; }
@@ -61,7 +73,8 @@
   <form class="blog-comments__form">
     <div class="blog-comments__context" hidden><span></span><button type="button" class="blog-comments__link" data-cancel-context>取消</button></div>
     <div class="blog-comments__editor">
-    <label class="blog-comments__name"><span class="sr-only">昵称（选填）</span><input name="name" maxlength="40" autocomplete="nickname" placeholder="昵称（选填，匿名也可以）" /></label>
+    <div class="blog-comments__author" data-comment-author hidden><span data-comment-author-label>以 Me 发表评论</span><label><input type="checkbox" data-comment-anonymous />匿名评论</label></div>
+    <label class="blog-comments__name"><span class="sr-only">昵称（选填）</span><span class="blog-comments__name-row"><img class="blog-comments__avatar" data-comment-author-avatar src="{{ '/images/blog-day-plush-avatar.png' | relative_url }}" width="32" height="32" alt="Me 的头像" hidden /><input name="name" maxlength="40" autocomplete="nickname" placeholder="昵称（选填，匿名也可以）" /></span></label>
     <label class="blog-comments__content"><span class="sr-only">你的评论</span><textarea name="content" required maxlength="2000" rows="4" placeholder="写下你的想法…"></textarea></label>
     <div class="blog-comments__actions">
       <button class="blog-footprints__button" type="submit" disabled>发布评论</button>

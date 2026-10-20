@@ -9,7 +9,7 @@ author:
   github: "Da1yuqin"
 google_analytics_id: "G-PRZP1TVEV"
 blog_access_api: "https://day-comments.thpv54ng76.workers.dev"
-blog_comments_api: "https://day-blog-comments.pages.dev"
+blog_comments_api: "https://day-comments.thpv54ng76.workers.dev"
 blog_visit_counter: true
 include:
   - _pages
