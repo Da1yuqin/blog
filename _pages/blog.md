@@ -107,7 +107,7 @@ author_profile: false
       <p class="az-blog__quote">表达自己，才能<br /><em>make influence!</em></p>
       <p class="az-blog__sub">这里记录我的随笔、研究笔记和项目复盘。</p>
       <p class="az-blog__sub"><a href="#footprints">评论区：聊聊你的想法</a></p>
-      <p class="az-blog__sub">p.s. 低维护成本方案, 如果你那么想看就看吧👀</p>
+      <p class="az-blog__sub">P.S. 全网实现采用低维护成本方案, 想看就看吧👀</p>
       <div class="az-blog__socials" aria-label="social links">
         <a href="https://github.com/Da1yuqin" title="GitHub">GH</a>
         <a href="{{ site.blog_access_api | append: '/api/blog/feed' | escape }}" title="订阅公开文章">RSS</a>
