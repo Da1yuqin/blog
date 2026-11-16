@@ -13,6 +13,7 @@
   const loadStatus = document.getElementById("blog-list-status");
   const retry = document.getElementById("blog-list-retry");
   const base = String(panel.dataset.api || window.BLOG_ACCESS_API_BASE || window.HAPPYLOG_API_BASE || "").replace(/\/+$/, "");
+  const staticPosts = JSON.parse(document.getElementById("blog-static-posts")?.textContent || "[]");
   const pageSize = 5;
   let posts = [], category = "all", page = 1, fetching = false;
   function element(tag, className, text) {
@@ -127,11 +128,23 @@
     panel.setAttribute("aria-labelledby", tab.id);
     renderPage();
   }
+  function showPosts(remotePosts = []) {
+    const entries = [...new Map([...remotePosts, ...staticPosts]
+      .filter(post => post.visibility === "public" && safeUrl(post.route))
+      .map(post => [safeUrl(post.route), post])).values()];
+    entries.sort((a, b) => Number(Boolean(b.pinned)) - Number(Boolean(a.pinned)) || (Date.parse(b.lastModifiedAt || b.date) || 0) - (Date.parse(a.lastModifiedAt || a.date) || 0));
+    posts = entries.map(card);
+    for (const tab of tabs) {
+      const count = entries.filter(post => tab.dataset.blogFilter === "all" || (post.category === "travel" || post.category === "planner" ? post.category : "misc") === tab.dataset.blogFilter).length;
+      tab.querySelector(".az-blog__category-count").textContent = String(count);
+    }
+    renderPage();
+  }
   async function load() {
     if (fetching) return;
     fetching = true;
     panel.setAttribute("aria-busy", "true");
-    loading.hidden = false;
+    loading.hidden = staticPosts.length > 0;
     loading.dataset.error = "false";
     retry.hidden = true;
     loadStatus.textContent = "正在加载文章……";
@@ -146,19 +159,14 @@
       if (!response.ok) throw new Error("Article list unavailable");
       const result = await response.json();
       if (!Array.isArray(result.posts)) throw new Error("Invalid article list");
-      const entries = result.posts.filter(post => post.visibility === "public" && safeUrl(post.route));
-      entries.sort((a, b) => Number(Boolean(b.pinned)) - Number(Boolean(a.pinned)) || (Date.parse(b.lastModifiedAt || b.date) || 0) - (Date.parse(a.lastModifiedAt || a.date) || 0));
-      posts = entries.map(card);
-      for (const tab of tabs) {
-        const count = entries.filter(post => tab.dataset.blogFilter === "all" || (post.category === "travel" || post.category === "planner" ? post.category : "misc") === tab.dataset.blogFilter).length;
-        tab.querySelector(".az-blog__category-count").textContent = String(count);
-      }
+      showPosts(result.posts);
       loading.hidden = true;
       fetching = false;
       renderPage();
     } catch {
+      loading.hidden = false;
       loading.dataset.error = "true";
-      loadStatus.textContent = "文章列表暂时没有加载成功。";
+      loadStatus.textContent = staticPosts.length ? "其他文章暂时没有加载成功。" : "文章列表暂时没有加载成功。";
       retry.hidden = false;
     } finally {
       clearTimeout(timer);
@@ -186,5 +194,6 @@
       event.preventDefault(); tabs[target].focus(); selectTab(tabs[target]);
     });
   });
+  showPosts();
   load();
 })();

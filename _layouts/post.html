@@ -43,6 +43,10 @@ layout: default
   <hr style="margin-top: 14px; opacity: .25;"/>
 </header>
 
+{% if page.static_public == true %}
+<div class="day-article-body" data-annotatable>{{ content }}</div>
+<p><a href="{{ '/' | relative_url }}#footprints">到 Blog 评论区聊聊 →</a></p>
+{% else %}
 {% capture default_access_id %}blog-{{ page.slug }}{% endcapture %}
 {% assign access_id = page.blog_access_id | default: default_access_id %}
 {% assign access_route = page.url | relative_url %}
@@ -64,3 +68,4 @@ layout: default
 {% capture article_comments %}{% include blog-footprints.html %}{% endcapture %}
 {{ article_comments | replace: '<section class="blog-footprints"', '<section hidden class="blog-footprints"' }}
 <script src="{{ '/assets/js/blog-access.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>
+{% endif %}

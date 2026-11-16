@@ -40,6 +40,7 @@ author_profile: false
   .az-blog__posts { display: flex; flex-direction: column; }
   .az-blog__posts:empty { min-height: 210px; }
   .az-blog__loading { display: flex; align-items: center; gap: 18px; min-height: 115px; margin-top: -180px; margin-bottom: 70px; color: #747c6d; font-size: 12px; }
+  .az-blog__posts:not(:empty) + .az-blog__loading { min-height: 0; margin: 18px 0; }
   .az-blog__loading[hidden] { display: none; }
   .az-blog__loading .day-image-runner { flex: 0 0 auto; width: 84px; }
   .az-blog__loading .day-image-dog { width: 64px; }
@@ -144,5 +145,25 @@ author_profile: false
   <noscript><p class="az-blog__empty">请启用 JavaScript 查看公开文章列表。</p></noscript>
   {% include blog-footprints.html %}
 </div>
+
+
+{% assign static_posts = site.posts | where: 'static_public', true %}
+<script type="application/json" id="blog-static-posts">[
+{% for post in static_posts %}
+  {
+    "slug": {{ post.slug | prepend: 'blog-' | jsonify }},
+    "title": {{ post.title | jsonify | replace: '<', '\u003c' }},
+    "route": {{ post.url | relative_url | jsonify }},
+    "date": {{ post.date | date_to_xmlschema | jsonify }},
+    "lastModifiedAt": {% if post.last_modified_at %}{{ post.last_modified_at | date_to_xmlschema | jsonify }}{% else %}null{% endif %},
+    "category": {{ post.blog_category | default: 'misc' | jsonify }},
+    "tags": {{ post.tags | jsonify | replace: '<', '\u003c' }},
+    "excerpt": {{ post.excerpt | strip_html | strip_newlines | jsonify | replace: '<', '\u003c' }},
+    "wordCount": {{ post.content | markdownify | strip_html | replace: ' ', '' | strip_newlines | size }},
+    "visibility": "public",
+    "pinned": {% if post.pinned %}true{% else %}false{% endif %}
+  }{% unless forloop.last %},{% endunless %}
+{% endfor %}
+]</script>
 
 <script src="{{ '/assets/js/blog-index.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>
