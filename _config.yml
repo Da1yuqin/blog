@@ -8,7 +8,6 @@ author:
   name: "Day"
   github: "Da1yuqin"
 google_analytics_id: "G-PRZP1TVEV"
-blog_access_api: "https://day-comments.thpv54ng76.workers.dev"
 blog_comments_api: "https://day-comments.thpv54ng76.workers.dev"
 blog_visit_counter: true
 include:
@@ -23,6 +22,8 @@ exclude:
   - assets/js/vendor
 encoding: "utf-8"
 markdown: kramdown
+kramdown:
+  input: Kramdown
 highlighter: rouge
 excerpt_separator: "\n\n"
 sass:

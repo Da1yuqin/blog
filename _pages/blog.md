@@ -38,19 +38,7 @@ author_profile: false
   .az-blog__category-count { margin-left: 7px; font-size: 10px; opacity: .7; }
   .az-blog .az-blog__category-description { margin: 14px 0 6px; color: #757d6d; font-size: 12px; }
   .az-blog__posts { display: flex; flex-direction: column; }
-  .az-blog__posts:empty { min-height: 210px; }
-  .az-blog__loading { display: flex; align-items: center; gap: 18px; min-height: 115px; margin-top: -180px; margin-bottom: 70px; color: #747c6d; font-size: 12px; }
-  .az-blog__posts:not(:empty) + .az-blog__loading { min-height: 0; margin: 18px 0; }
-  .az-blog__loading[hidden] { display: none; }
-  .az-blog__loading .day-image-runner { flex: 0 0 auto; width: 84px; }
-  .az-blog__loading .day-image-dog { width: 64px; }
-  .az-blog__loading .day-image-treadmill { width: 76px; }
-  .az-blog__loading .day-image-dog { animation: day-dog-run .7s step-end infinite, day-dog-bob .35s ease-in-out infinite; }
-  .az-blog__loading .day-image-treadmill::before { animation: day-treadmill-belt 1s linear infinite; }
-  .az-blog__loading .day-image-treadmill::after { animation: day-treadmill-progress 2.2s ease-in-out infinite; }
   @media (prefers-reduced-motion: reduce) { .az-blog__loading .day-image-dog, .az-blog__loading .day-image-treadmill::before, .az-blog__loading .day-image-treadmill::after { animation: none; } }
-  .az-blog__loading[data-error="true"] .day-image-runner { display: none; }
-  .az-blog__loading button { border: 0; border-bottom: 1px solid #cdd3c6; padding: 4px 0; background: transparent; color: #526349; font: inherit; cursor: pointer; }
 
   .az-post { display: grid; grid-template-columns: 210px minmax(0,1fr); align-items: center; gap: 32px; padding: 28px 0; border-bottom: 1px solid var(--day-line); background: transparent; }
   .az-post__cover { display: block; position: relative; height: 170px; overflow: hidden; background: #fff; }
@@ -100,7 +88,7 @@ author_profile: false
 <div class="az-blog">
   <section class="az-blog__profile">
     <div class="az-blog__identity">
-    <p class="az-blog__eyebrow">DAY / JOURNAL <a class="az-blog__admin-link" href="{{ '/admin/' | relative_url }}" target="_self">管理总览</a></p>
+    <p class="az-blog__eyebrow">DAY / JOURNAL</p>
     <div class="az-blog__avatar">
       {% include site-image.html src='/images/blog-day-plush-avatar.png' alt='Day 的呆呆小狗玩偶，穿着草莓上衣和绿色流苏裙' sizes='160px' loading='eager' %}
     </div>
@@ -111,7 +99,7 @@ author_profile: false
       <p class="az-blog__sub">P.S. 全网实现采用低维护成本方案, 想看就看吧👀</p>
       <div class="az-blog__socials" aria-label="social links">
         <a href="https://github.com/Da1yuqin" title="GitHub">GH</a>
-        <a href="{{ site.blog_access_api | append: '/api/blog/feed' | escape }}" title="订阅公开文章">RSS</a>
+        <a href="{{ '/feed.xml' | relative_url }}" title="订阅公开文章">RSS</a>
       </div>
     </div>
     </div>
@@ -120,50 +108,46 @@ author_profile: false
     </figure>
   </section>
 
+  {% assign blog_posts = site.posts | sort: 'date' | reverse %}
+  {% assign travel_count = blog_posts | where: 'blog_category', 'travel' | size %}
+  {% assign planner_count = blog_posts | where: 'blog_category', 'planner' | size %}
+  {% assign misc_count = blog_posts.size | minus: travel_count | minus: planner_count %}
   <h2 class="az-blog__section-title" id="articles">Articles</h2>
 
   <div class="az-blog__categories" role="tablist" aria-label="博客分类">
-    <button type="button" role="tab" id="blog-tab-all" aria-selected="true" aria-controls="blog-posts" data-blog-filter="all" data-description="这里记录了全部的博客">全部<span class="az-blog__category-count" aria-hidden="true">—</span></button>
-    <button type="button" role="tab" id="blog-tab-misc" aria-selected="false" aria-controls="blog-posts" tabindex="-1" data-blog-filter="misc" data-description="碎碎念，随便看看">杂七杂八<span class="az-blog__category-count" aria-hidden="true">—</span></button>
-    <button type="button" role="tab" id="blog-tab-travel" aria-selected="false" aria-controls="blog-posts" tabindex="-1" data-blog-filter="travel" data-description="探索地球中">地球OL打卡<span class="az-blog__category-count" aria-hidden="true">—</span></button>
-    <button type="button" role="tab" id="blog-tab-planner" aria-selected="false" aria-controls="blog-posts" tabindex="-1" data-blog-filter="planner" data-description="其实，我也有努力工作">J人模式副产物<span class="az-blog__category-count" aria-hidden="true">—</span></button>
+    <button type="button" role="tab" id="blog-tab-all" aria-selected="true" aria-controls="blog-posts" data-blog-filter="all" data-description="这里记录了全部的博客">全部<span class="az-blog__category-count" aria-hidden="true">{{ blog_posts.size }}</span></button>
+    <button type="button" role="tab" id="blog-tab-misc" aria-selected="false" aria-controls="blog-posts" tabindex="-1" data-blog-filter="misc" data-description="碎碎念，随便看看">杂七杂八<span class="az-blog__category-count" aria-hidden="true">{{ misc_count }}</span></button>
+    <button type="button" role="tab" id="blog-tab-travel" aria-selected="false" aria-controls="blog-posts" tabindex="-1" data-blog-filter="travel" data-description="探索地球中">地球OL打卡<span class="az-blog__category-count" aria-hidden="true">{{ travel_count }}</span></button>
+    <button type="button" role="tab" id="blog-tab-planner" aria-selected="false" aria-controls="blog-posts" tabindex="-1" data-blog-filter="planner" data-description="其实，我也有努力工作">J人模式副产物<span class="az-blog__category-count" aria-hidden="true">{{ planner_count }}</span></button>
   </div>
   <p class="az-blog__category-description" id="blog-category-description" role="status" aria-live="polite">这里记录了全部的博客</p>
 
-  <section class="az-blog__posts" id="blog-posts" role="tabpanel" aria-labelledby="blog-tab-all" aria-busy="true" data-api="{{ site.blog_access_api | escape }}" data-site-base="{{ '/' | relative_url }}"></section>
-  <div class="az-blog__loading" id="blog-list-loading" role="status" aria-live="polite">
-    <span class="day-image-runner" aria-hidden="true"><span class="day-image-dog"></span><span class="day-image-treadmill"></span></span>
-    <span id="blog-list-status">正在加载文章……</span>
-    <button type="button" id="blog-list-retry" hidden>重新加载</button>
-  </div>
+  <section class="az-blog__posts" id="blog-posts" role="tabpanel" aria-labelledby="blog-tab-all">
+    {% for post in blog_posts %}
+      {% assign category = 'misc' %}
+      {% if post.blog_category == 'travel' or post.blog_category == 'planner' %}{% assign category = post.blog_category %}{% endif %}
+      {% assign updated_at = post.last_modified_at | default: post.date %}
+      {% assign words = post.content | markdownify | strip_html | replace: ' ', '' | strip_newlines | size %}
+      <article class="az-post" data-blog-category="{{ category }}" data-pinned="{% if post.pinned %}true{% else %}false{% endif %}" data-updated="{{ updated_at | date: '%s' }}">
+        {% if post.cover %}<a class="az-post__cover az-post__cover--image{% if post.cover_frame %} az-post__cover--{{ post.cover_frame | escape }}{% endif %}" href="{{ post.url | relative_url }}" target="_self" aria-label="{{ post.title | escape }}">{% include site-image.html src=post.cover alt=post.title sizes='(max-width: 640px) 110px, 210px' %}</a>{% endif %}
+        <div class="az-post__body">
+          <div class="az-post__meta">{% if post.pinned %}置顶 · {% endif %}{% if post.last_modified_at %}更新于{% else %}发布于{% endif %} <time datetime="{{ updated_at | date_to_xmlschema | escape }}">{{ updated_at | date: '%Y-%m-%d %H:%M' }}</time>{% if words > 0 %} · {{ words | divided_by: 260 | plus: 1 }} min · {{ words }} words{% endif %}</div>
+          <h3 class="az-post__title"><a href="{{ post.url | relative_url }}" target="_self">{% if post.title_image %}{% include site-image.html src=post.title_image alt=post.title class='az-post__title-image' %}{% else %}{{ post.title | escape }}{% endif %}</a></h3>
+          {% if post.excerpt %}<p class="az-post__excerpt">{{ post.excerpt | strip_html | strip_newlines | truncate: 140 }}</p>{% endif %}
+          {% if post.tags and post.tags.size > 0 %}<div class="az-post__tags">{% for tag in post.tags %}<span>{{ tag | escape }}</span>{% endfor %}</div>{% endif %}
+        </div>
+      </article>
+    {% endfor %}
+  </section>
   <p class="az-blog__empty" id="blog-category-empty" hidden>这个分类还没有文章。</p>
   <nav class="az-blog__pagination" id="blog-pagination" aria-label="文章翻页" hidden>
     <button type="button" id="blog-page-prev" aria-controls="blog-posts">上一页</button>
     <span id="blog-page-status" role="status" aria-live="polite"></span>
     <button type="button" id="blog-page-next" aria-controls="blog-posts">下一页</button>
   </nav>
-  <noscript><p class="az-blog__empty">请启用 JavaScript 查看公开文章列表。</p></noscript>
   {% include blog-footprints.html %}
 </div>
 
 
-{% assign static_posts = site.posts | where: 'static_public', true %}
-<script type="application/json" id="blog-static-posts">[
-{% for post in static_posts %}
-  {
-    "slug": {{ post.slug | prepend: 'blog-' | jsonify }},
-    "title": {{ post.title | jsonify | replace: '<', '\u003c' }},
-    "route": {{ post.url | relative_url | jsonify }},
-    "date": {{ post.date | date_to_xmlschema | jsonify }},
-    "lastModifiedAt": {% if post.last_modified_at %}{{ post.last_modified_at | date_to_xmlschema | jsonify }}{% else %}null{% endif %},
-    "category": {{ post.blog_category | default: 'misc' | jsonify }},
-    "tags": {{ post.tags | jsonify | replace: '<', '\u003c' }},
-    "excerpt": {{ post.excerpt | strip_html | strip_newlines | jsonify | replace: '<', '\u003c' }},
-    "wordCount": {{ post.content | markdownify | strip_html | replace: ' ', '' | strip_newlines | size }},
-    "visibility": "public",
-    "pinned": {% if post.pinned %}true{% else %}false{% endif %}
-  }{% unless forloop.last %},{% endunless %}
-{% endfor %}
-]</script>
 
 <script src="{{ '/assets/js/blog-index.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>

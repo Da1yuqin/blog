@@ -3,19 +3,20 @@ layout: null
 sitemap: false
 ---
 <?xml version="1.0" encoding="UTF-8"?>
-{% assign public_feed_url = site.blog_access_api | append: '/api/blog/feed' %}
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>{{ site.title | xml_escape }}</title>
+  <author><name>{{ site.author.name | default: site.title | xml_escape }}</name></author>
   <id>{{ '/feed.xml' | absolute_url | xml_escape }}</id>
   <link href="{{ '/feed.xml' | absolute_url | xml_escape }}" rel="self" type="application/atom+xml"/>
-  <link href="{{ public_feed_url | xml_escape }}" rel="alternate" type="application/atom+xml"/>
+  <link href="{{ '/' | absolute_url | xml_escape }}"/>
   <updated>{{ site.time | date_to_xmlschema }}</updated>
+  {% for post in site.posts %}
   <entry>
-    <title>公开文章订阅地址已更新</title>
-    <id>{{ '/feed.xml#public-subscription' | absolute_url | xml_escape }}</id>
-    <link href="{{ public_feed_url | xml_escape }}"/>
-    <updated>{{ site.time | date_to_xmlschema }}</updated>
-    <summary>请将订阅地址更新为此条目链接的新地址。新订阅会随文章公开状态更新，只收录公开文章。</summary>
-    <content type="text">{{ public_feed_url | xml_escape }}</content>
+    <title>{{ post.title | xml_escape }}</title>
+    <id>{{ post.url | absolute_url | xml_escape }}</id>
+    <link href="{{ post.url | absolute_url | xml_escape }}"/>
+    <updated>{{ post.last_modified_at | default: post.date | date_to_xmlschema }}</updated>
+    <summary>{{ post.excerpt | strip_html | xml_escape }}</summary>
   </entry>
+  {% endfor %}
 </feed>
